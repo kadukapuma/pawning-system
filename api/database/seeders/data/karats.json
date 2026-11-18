@@ -1,0 +1,114 @@
+[
+    {
+        "name": "B4 - 22KT",
+        "pawn_rate": 340000,
+        "assess_rate": 340000,
+        "market_rate": 325834,
+        "sale_rate": 370000
+    },
+    {
+        "name": "B3 - 22KT",
+        "pawn_rate": 311458,
+        "assess_rate": 325000,
+        "market_rate": 325834,
+        "sale_rate": 370000
+    },
+    {
+        "name": "B2 - 22KT",
+        "pawn_rate": 297916,
+        "assess_rate": 325000,
+        "market_rate": 311667,
+        "sale_rate": 370000
+    },
+    {
+        "name": "B1 - 22KT",
+        "pawn_rate": 262500,
+        "assess_rate": 300000,
+        "market_rate": 297500,
+        "sale_rate": 370000
+    },
+    {
+        "name": "B0 - 22KT",
+        "pawn_rate": 250000,
+        "assess_rate": 300000,
+        "market_rate": 283334,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A9 - 22KT",
+        "pawn_rate": 237500,
+        "assess_rate": 300000,
+        "market_rate": 269200,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A8 - 22KT",
+        "pawn_rate": 217500,
+        "assess_rate": 290000,
+        "market_rate": 255000,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A7 - 22KT",
+        "pawn_rate": 205420,
+        "assess_rate": 290000,
+        "market_rate": 240840,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A6 - 22KT",
+        "pawn_rate": 194000,
+        "assess_rate": 290000,
+        "market_rate": 226000,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A5 - 22KT",
+        "pawn_rate": 181250,
+        "assess_rate": 290000,
+        "market_rate": 212500,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A4 - 22KT",
+        "pawn_rate": 169166,
+        "assess_rate": 290000,
+        "market_rate": 198300,
+        "sale_rate": 370000
+    },
+    {
+        "name": "A3 - 22KT",
+        "pawn_rate": 157083,
+        "assess_rate": 290000,
+        "market_rate": 184100,
+        "sale_rate": 380000
+    },
+    {
+        "name": "A2 - 22KT",
+        "pawn_rate": 145000,
+        "assess_rate": 2900000,
+        "market_rate": 170000,
+        "sale_rate": 360000
+    },
+    {
+        "name": "A1 - 22KT",
+        "pawn_rate": 132916,
+        "assess_rate": 290000,
+        "market_rate": 155800,
+        "sale_rate": 360000
+    },
+    {
+        "name": "A0 - 22KT",
+        "pawn_rate": 120000,
+        "assess_rate": 290000,
+        "market_rate": 141600,
+        "sale_rate": 360000
+    },
+    {
+        "name": "Silwer",
+        "pawn_rate": 2950,
+        "assess_rate": 8000,
+        "market_rate": 10000,
+        "sale_rate": 13000
+    }
+]

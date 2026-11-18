@@ -1,0 +1,847 @@
+[
+    {
+        "code": "ITM-0001",
+        "name": "Ball Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0002",
+        "name": "Flower Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0003",
+        "name": "Gypsy Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0004",
+        "name": "Mini Thin Earings",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0005",
+        "name": "Praveena Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0006",
+        "name": "Sun Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0007",
+        "name": "Tasal Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0008",
+        "name": "with stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0009",
+        "name": "Black stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0010",
+        "name": "Blue stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0011",
+        "name": "Red stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0012",
+        "name": "White Stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0013",
+        "name": "Yelloow stone Ering",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0014",
+        "name": "W Heart Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0015",
+        "name": "Women's Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0016",
+        "name": "Ithi MUduwa",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0017",
+        "name": "W Barrel Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0018",
+        "name": "W Flower Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0019",
+        "name": "W Stone RING",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0020",
+        "name": "W Wedding Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0021",
+        "name": "W Ruby Wedding Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0022",
+        "name": "W Braided Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0023",
+        "name": "W Crown Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0024",
+        "name": "W Ruby Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0025",
+        "name": "W Blue stone Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0026",
+        "name": "W Red stone Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0027",
+        "name": "W white Stone Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0028",
+        "name": "W Yelloow stone Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0029",
+        "name": "W/ letter Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0030",
+        "name": "Earing Big Centre Ston",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0031",
+        "name": "Ring",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0032",
+        "name": "Ring Edit",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0033",
+        "name": "Ring Edit r",
+        "category": "Women's Ring"
+    },
+    {
+        "code": "ITM-0034",
+        "name": "With stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0035",
+        "name": "Blue stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0036",
+        "name": "Red stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0037",
+        "name": "White Stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0038",
+        "name": "yelloow stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0039",
+        "name": "Black stone Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0040",
+        "name": "Dharma Chakra",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0041",
+        "name": "Hiru pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0042",
+        "name": "Anchor pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0043",
+        "name": "Hearts Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0044",
+        "name": "Cross Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0045",
+        "name": "Star Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0046",
+        "name": "Name Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0047",
+        "name": "Cricket Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0048",
+        "name": "pendant Derana",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0049",
+        "name": "Pendant edit",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0050",
+        "name": "Praveena Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0051",
+        "name": "Flower Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0052",
+        "name": "Box Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0053",
+        "name": "Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0054",
+        "name": "Diamond Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0055",
+        "name": "Link Circle Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0056",
+        "name": "Link Oval Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0057",
+        "name": "Oval-Circle Link Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0058",
+        "name": "Flat Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0059",
+        "name": "Lara Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0060",
+        "name": "Albert chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0061",
+        "name": "Rope Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0062",
+        "name": "Tiub Rope Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0063",
+        "name": "Chain With stone pendant",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0064",
+        "name": "Chain With pendant",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0065",
+        "name": "V Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0066",
+        "name": "SP Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0067",
+        "name": "White - Gold Chain",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0068",
+        "name": "Chain dold",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0069",
+        "name": "Chain 2",
+        "category": "Chain"
+    },
+    {
+        "code": "ITM-0070",
+        "name": "Chain & pendant",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0071",
+        "name": "Chain & Cricket P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0072",
+        "name": "Chain & stone P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0073",
+        "name": "Chain &Blue stone P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0074",
+        "name": "Chain & Red stone P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0075",
+        "name": "Chain & white Stone P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0076",
+        "name": "Chain & yelloow stone P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0077",
+        "name": "Chain & Dharma Chakra P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0078",
+        "name": "Chain &Hiru p/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0079",
+        "name": "Chain & Anchor P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0080",
+        "name": "Chain &Hearts P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0081",
+        "name": "Chain & Praveena P/D",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0082",
+        "name": "Chain & Thuli",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0083",
+        "name": "Chain & POTTOO",
+        "category": "Chain With pendant"
+    },
+    {
+        "code": "ITM-0084",
+        "name": "Nose Pin",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0085",
+        "name": "Panchauda",
+        "category": "Panchauda"
+    },
+    {
+        "code": "ITM-0086",
+        "name": "Squaer Panchauda",
+        "category": "Panchauda"
+    },
+    {
+        "code": "ITM-0087",
+        "name": "Heart Panchauda",
+        "category": "Panchauda"
+    },
+    {
+        "code": "ITM-0088",
+        "name": "Heart Panchauda W/H Stone",
+        "category": "Panchauda"
+    },
+    {
+        "code": "ITM-0089",
+        "name": "Circle Panchauda",
+        "category": "Panchauda"
+    },
+    {
+        "code": "ITM-0090",
+        "name": "Gents Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0091",
+        "name": "M Normal Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0092",
+        "name": "M Cauple Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0093",
+        "name": "M Stone RING",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0094",
+        "name": "M Square Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0095",
+        "name": "M Sun Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0096",
+        "name": "M Wedding Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0097",
+        "name": "M Navarathna Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0098",
+        "name": "M Baby Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0099",
+        "name": "Sink Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0100",
+        "name": "M Blue stone Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0101",
+        "name": "M Red stone Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0102",
+        "name": "M White Stone Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0103",
+        "name": "M yelloow stone Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0104",
+        "name": "M/letter Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0105",
+        "name": "Finger Ring",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0106",
+        "name": "Finger Ring 2",
+        "category": "Man's Ring"
+    },
+    {
+        "code": "ITM-0107",
+        "name": "Brecelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0108",
+        "name": "Flat Brecelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0109",
+        "name": "Link Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0110",
+        "name": "Oval Link Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0111",
+        "name": "Albert Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0112",
+        "name": "Lara Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0113",
+        "name": "Eye Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0114",
+        "name": "Double box Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0115",
+        "name": "Diamond Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0116",
+        "name": "Prince Albert Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0117",
+        "name": "Puram Bracelet",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0118",
+        "name": "Brecelet 1",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0119",
+        "name": "Brecelet 2",
+        "category": "Brecelet"
+    },
+    {
+        "code": "ITM-0120",
+        "name": "Bangle",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0121",
+        "name": "Plan Bangele",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0122",
+        "name": "Broad Bangles",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0123",
+        "name": "Lock Bangle",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0124",
+        "name": "Baby Bangal",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0125",
+        "name": "Mondial Bangl",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0126",
+        "name": "Stone Bangel",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0127",
+        "name": "Tube Bangl",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0128",
+        "name": "Wire Bangl",
+        "category": "Bangle"
+    },
+    {
+        "code": "ITM-0129",
+        "name": "With hook Coin",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0130",
+        "name": "Decorated Coin",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0131",
+        "name": "Nomal Coin",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0132",
+        "name": "Coin",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0133",
+        "name": "Coin 1",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0134",
+        "name": "Coin 2",
+        "category": "COIN"
+    },
+    {
+        "code": "ITM-0135",
+        "name": "POTTOO",
+        "category": "POTTOO"
+    },
+    {
+        "code": "ITM-0136",
+        "name": "POTTOO 1",
+        "category": "POTTOO"
+    },
+    {
+        "code": "ITM-0137",
+        "name": "POTTOO 2",
+        "category": "POTTOO"
+    },
+    {
+        "code": "ITM-0138",
+        "name": "POTTOO 4",
+        "category": "POTTOO"
+    },
+    {
+        "code": "ITM-0139",
+        "name": "THLI",
+        "category": "THLI"
+    },
+    {
+        "code": "ITM-0140",
+        "name": "THLI 1",
+        "category": "THLI"
+    },
+    {
+        "code": "ITM-0141",
+        "name": "CASSI",
+        "category": "Cassi"
+    },
+    {
+        "code": "ITM-0142",
+        "name": "Gold Biscuit",
+        "category": "Gold Biscuit"
+    },
+    {
+        "code": "ITM-0144",
+        "name": "Anklet",
+        "category": "Anklet"
+    },
+    {
+        "code": "ITM-0145",
+        "name": "Silver Chain",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0146",
+        "name": "Star Earing",
+        "category": "EARING"
+    },
+    {
+        "code": "ITM-0147",
+        "name": "Circle Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0148",
+        "name": "mani",
+        "category": "Mani"
+    },
+    {
+        "code": "ITM-0149",
+        "name": "Simiki",
+        "category": "Simiki"
+    },
+    {
+        "code": "ITM-0150",
+        "name": "Box Chain & Pendant",
+        "category": "Chain with"
+    },
+    {
+        "code": "ITM-0151",
+        "name": "Link Chain & Pendant",
+        "category": "Chain with"
+    },
+    {
+        "code": "ITM-0152",
+        "name": "Diamond & Pendant",
+        "category": "Chain with"
+    },
+    {
+        "code": "ITM-0153",
+        "name": "Earin Derana",
+        "category": "Earing"
+    },
+    {
+        "code": "ITM-0154",
+        "name": "Silver Lara Chain",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0155",
+        "name": "Silver Albert chain",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0156",
+        "name": "Silver Box Chain",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0157",
+        "name": "Silver Man's Ring",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0158",
+        "name": "Silver Navarathna Ring",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0159",
+        "name": "Silver Pendant",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0160",
+        "name": "Mus",
+        "category": "Mus"
+    },
+    {
+        "code": "ITM-0161",
+        "name": "Silver Breclelet",
+        "category": "SILVER"
+    },
+    {
+        "code": "ITM-0162",
+        "name": "SURA",
+        "category": "SURA"
+    },
+    {
+        "code": "ITM-0163",
+        "name": "Derana Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0164",
+        "name": "Heart Earring",
+        "category": "Earing"
+    },
+    {
+        "code": "ITM-0165",
+        "name": "Damaged",
+        "category": "Finger Ring"
+    },
+    {
+        "code": "ITM-0166",
+        "name": "Kotu Pendant",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0167",
+        "name": "Kotu Earing",
+        "category": "Earing"
+    },
+    {
+        "code": "ITM-0168",
+        "name": "OM",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0169",
+        "name": "Butterfly",
+        "category": "Pendant"
+    },
+    {
+        "code": "ITM-0170",
+        "name": "Blak Stone",
+        "category": "Women's Ring"
+    }
+]
