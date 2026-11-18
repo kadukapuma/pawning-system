@@ -3,6 +3,8 @@
 namespace App\Domain\Accounting\Services;
 
 use App\Domain\Accounting\Models\Account;
+use App\Domain\Accounting\Models\DayClosing;
+use Illuminate\Validation\ValidationException;
 use App\Domain\Accounting\Models\JournalEntry;
 use App\Domain\Core\Services\SequenceService;
 use App\Domain\Core\Support\BranchContext;
@@ -38,6 +40,7 @@ class LedgerPoster
 
         $lines = array_values(array_filter($lines, fn (JournalLineData $l) => ! $l->isZero()));
         $this->assertValid($lines);
+        $this->assertDayOpen($branchId, $date);
 
         return DB::transaction(function () use ($lines, $narration, $date, $source, $branchId) {
             $accounts = $this->resolveAccounts($lines);
@@ -99,6 +102,19 @@ class LedgerPoster
 
             return $reversal;
         });
+    }
+
+    /** Once a branch has closed a business day, nothing more may be posted to it. */
+    private function assertDayOpen(int $branchId, string $date): void
+    {
+        $closed = DayClosing::withoutBranchScope()
+            ->where('branch_id', $branchId)->whereDate('business_date', $date)->where('status', 'closed')->exists();
+
+        if ($closed) {
+            throw ValidationException::withMessages([
+                'date' => "The day {$date} is already closed for this branch. Ask a manager to reopen it.",
+            ]);
+        }
     }
 
     /** @param list<JournalLineData> $lines */

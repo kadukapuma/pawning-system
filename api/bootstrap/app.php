@@ -21,6 +21,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+
+        // Set the working branch BEFORE route-model binding, so {ticket} etc.
+        // are loaded through the branch scope (no reading another branch's records by id).
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: \App\Domain\Core\Http\Middleware\ResolveBranch::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Always answer API requests with JSON errors.

@@ -32,6 +32,7 @@ class ChartOfAccountsSeeder extends Seeder
         // code, name, group, system_key, flags
         ['1110', 'Cash in Hand', '1100', 'cash', ['is_cash' => true]],
         ['1120', 'Cheques in Hand', '1100', 'cheques_in_hand', []],
+        ['1125', 'Card Settlements Receivable', '1100', 'card_receivable', []],
         ['1130', 'Pawn Loans Receivable', '1100', 'pawn_loans_receivable', []],
         ['1150', 'Forfeited Articles Stock', '1100', 'forfeited_stock', []],
         ['2110', 'Stamp Duty Payable', '2100', 'stamp_duty_payable', []],

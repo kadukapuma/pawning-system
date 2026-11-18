@@ -1,7 +1,8 @@
-import { ArrowLeft, Pencil, ShieldAlert, SlidersHorizontal } from 'lucide-react'
+import { ArrowLeft, Pencil, Plus, ShieldAlert, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { Badge, Button, Card, Dialog, Field, Input, Select, Spinner, Textarea } from '@/components/ui'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Badge, Button, Card, Dialog, Field, Input, Select, Spinner, Table, Td, Textarea, Th } from '@/components/ui'
+import { statusTone as ticketTone, type PawnTicket } from '@/features/pawning/types'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useApiMutation, useApiQuery } from '@/lib/hooks'
 import type { Customer, CustomerStatus } from '@/lib/types'
@@ -80,15 +81,49 @@ export function CustomerDetailPage() {
         </dl>
       </Card>
 
-      <Card className="p-5">
-        <h2 className="mb-1 text-sm font-semibold">Pawn tickets</h2>
-        <p className="text-sm text-muted-foreground">Ticket history appears here once pawning is built (phase 6).</p>
-      </Card>
+      <CustomerTickets customerId={c.id} canPawn={can('pawn.create') && c.status === 'active'} />
 
       <CustomerFormDialog open={editing} onClose={() => setEditing(false)} customer={c} />
       <StatusDialog open={statusOpen} onClose={() => setStatusOpen(false)} customer={c} />
       <LimitsDialog open={limitsOpen} onClose={() => setLimitsOpen(false)} customer={c} />
     </div>
+  )
+}
+
+function CustomerTickets({ customerId, canPawn }: { customerId: number; canPawn: boolean }) {
+  const navigate = useNavigate()
+  const { can } = useAuth()
+  const tickets = useApiQuery<PawnTicket[]>(['customers', customerId, 'tickets'], `/api/v1/customers/${customerId}/tickets`, can('pawn.view'))
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between px-4 pt-4">
+        <h2 className="text-sm font-semibold">Pawn tickets (all branches)</h2>
+        {canPawn && <Button size="sm" onClick={() => navigate(`/pawning/new?customer=${customerId}`)}><Plus className="size-4" /> New pawn</Button>}
+      </div>
+      {tickets.isPending ? (
+        <div className="p-6"><Spinner /></div>
+      ) : (tickets.data?.length ?? 0) === 0 ? (
+        <p className="p-4 text-sm text-muted-foreground">No tickets yet.</p>
+      ) : (
+        <Table className="mt-2">
+          <thead><tr><Th>Receipt</Th><Th>Branch</Th><Th>Scheme</Th><Th>Pawned</Th><Th>Maturity</Th><Th className="text-right">Capital</Th><Th>Status</Th></tr></thead>
+          <tbody>
+            {tickets.data?.map((t) => (
+              <tr key={t.id} className="cursor-pointer hover:bg-secondary/50" onClick={() => navigate(`/pawning/tickets/${t.id}`)}>
+                <Td className="font-mono">{t.receipt_no}</Td>
+                <Td>{t.branch?.code}</Td>
+                <Td>{t.scheme?.code}</Td>
+                <Td>{t.pawn_date}</Td>
+                <Td className={t.is_overdue ? 'text-destructive' : ''}>{t.maturity_date}</Td>
+                <Td className="text-right tabular-nums">{formatMoney(t.principal_current)}</Td>
+                <Td><Badge tone={ticketTone(t.status)}>{t.status}</Badge>{t.is_blocked && <Badge tone="danger">blocked</Badge>}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+    </Card>
   )
 }
 

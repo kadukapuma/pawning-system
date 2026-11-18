@@ -49,6 +49,16 @@ class AppServiceProvider extends ServiceProvider
             'bank' => \App\Domain\Banking\Models\Bank::class,
             'bank_branch' => \App\Domain\Banking\Models\BankBranch::class,
             'customer' => \App\Domain\Customers\Models\Customer::class,
+            'pawn_ticket' => \App\Domain\Pawning\Models\PawnTicket::class,
+            'pawn_transaction' => \App\Domain\Pawning\Models\PawnTransaction::class,
+            'forfeiture' => \App\Domain\Forfeit\Models\Forfeiture::class,
+            'stock_transfer_batch' => \App\Domain\Inventory\Models\StockTransferBatch::class,
+            'inventory_item' => \App\Domain\Inventory\Models\InventoryItem::class,
+            'sales_invoice' => \App\Domain\Sales\Models\SalesInvoice::class,
+            'voucher' => \App\Domain\Accounting\Models\Voucher::class,
+            'day_closing' => \App\Domain\Accounting\Models\DayClosing::class,
+            'bank_account' => \App\Domain\Banking\Models\BankAccount::class,
+            'cheque' => \App\Domain\Banking\Models\Cheque::class,
         ]);
 
         // super_admin passes every permission check.

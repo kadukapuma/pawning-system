@@ -10,6 +10,11 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
+// Unit tests boot the app (for validation messages) but never touch the database.
+pest()->extend(TestCase::class)->in('Unit');
+
+require_once __DIR__.'/Support/pawning.php';
+
 /*
 | Helpers shared by feature tests. Reference data (branches 001/002, roles,
 | accounts, sequences) is seeded before each test by TestCase::$seed.
