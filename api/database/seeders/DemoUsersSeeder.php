@@ -15,6 +15,7 @@ class DemoUsersSeeder extends Seeder
     private const USERS = [
         // username, name, role, home branch, extra branches
         ['manager001', 'Branch Manager (001)', 'branch_manager', '001', []],
+        ['manager002', 'Branch Manager (002)', 'branch_manager', '002', []],
         ['cashier001', 'Cashier (001)', 'cashier', '001', []],
         ['cashier002', 'Cashier (002)', 'cashier', '002', []],
         ['valuer001', 'Valuer (001)', 'valuer', '001', []],

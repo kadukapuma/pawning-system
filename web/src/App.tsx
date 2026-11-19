@@ -20,6 +20,8 @@ import { TicketSearchPage } from '@/features/pawning/TicketSearchPage'
 import { ChartOfAccountsPage, JournalsPage } from '@/features/accounting/AccountsPages'
 import { CashBookPage, StatementsPage, VouchersPage } from '@/features/accounting/CashPages'
 import { BankAccountsPage, ChequesPage, ReconciliationPage } from '@/features/banking/BankingPages'
+import { ReportsPage } from '@/features/reports/ReportsPage'
+import { StockCheckPage } from '@/features/reports/StockCheckPage'
 import { InventoryPage } from '@/features/sales/InventoryPage'
 import { InvoicePrintPage, NewSalePage, SalesListPage } from '@/features/sales/SalesPages'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -70,6 +72,9 @@ const router = createBrowserRouter([
       { path: 'banking/accounts', element: <BankAccountsPage /> },
       { path: 'banking/cheques', element: <ChequesPage /> },
       { path: 'banking/reconciliation', element: <ReconciliationPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'reports/:report', element: <ReportsPage /> },
+      { path: 'pawning/stock-check', element: <StockCheckPage /> },
       { path: 'masters/karats', element: <KaratsPage /> },
       { path: 'masters/schemes', element: <SchemesPage /> },
       { path: 'masters/categories', element: <CategoriesPage /> },

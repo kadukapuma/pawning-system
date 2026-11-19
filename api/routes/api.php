@@ -14,6 +14,7 @@ use App\Domain\Masters\Http\Controllers\KaratController;
 use App\Domain\Masters\Http\Controllers\LookupController;
 use App\Domain\Masters\Http\Controllers\PawnSchemeController;
 use App\Domain\Pawning\Http\Controllers\PawnTicketController;
+use App\Domain\Reports\Http\Controllers\ReportController;
 use App\Domain\Sales\Http\Controllers\SalesController;
 use Illuminate\Support\Facades\Route;
 
@@ -124,6 +125,16 @@ Route::prefix('v1')->group(function () {
         Route::post('/banking/cheques/{cheque}/return', [BankingController::class, 'returnCheque']);
         Route::get('/banking/accounts/{bankAccount}/reconciliation', [BankingController::class, 'reconciliation']);
         Route::post('/banking/accounts/{bankAccount}/reconciliation', [BankingController::class, 'reconcile']);
+
+        // --- Dashboard, reports, vault stock check -------------------------------
+        Route::get('/dashboard', [ReportController::class, 'dashboard']);
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports/{report}', [ReportController::class, 'show']);
+        Route::get('/stock-checks', [ReportController::class, 'stockCheck']);
+        Route::post('/stock-checks', [ReportController::class, 'startStockCheck']);
+        Route::get('/stock-checks/{session}', [ReportController::class, 'stockCheckSummary'])->whereNumber('session');
+        Route::post('/stock-checks/{session}/scan', [ReportController::class, 'scan'])->whereNumber('session');
+        Route::post('/stock-checks/{session}/complete', [ReportController::class, 'completeStockCheck'])->whereNumber('session');
 
         // --- Masters ---------------------------------------------------------
         Route::get('/karats', [KaratController::class, 'index']);
