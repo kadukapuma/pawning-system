@@ -1,7 +1,10 @@
-import { Loader2, X } from 'lucide-react'
+import { Info, Loader2, X } from 'lucide-react'
 import {
   forwardRef,
   useEffect,
+  useId,
+  useRef,
+  useState,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
@@ -112,6 +115,79 @@ export function Checkbox({ label, ...rest }: InputHTMLAttributes<HTMLInputElemen
       <input type="checkbox" className="size-4 accent-[var(--primary)]" {...rest} />
       {label}
     </label>
+  )
+}
+
+/* ---------------------------------------------------------------- InfoTip */
+
+/**
+ * A small "i" button that shows help text on hover, keyboard focus or tap.
+ * The popover is position: fixed so scrolling dialogs never clip it.
+ */
+export function InfoTip({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
+  const id = useId()
+  const btn = useRef<HTMLButtonElement>(null)
+  const [pos, setPos] = useState<{ left: number; top: number; above: boolean } | null>(null)
+
+  const show = () => {
+    const r = btn.current?.getBoundingClientRect()
+    if (!r) return
+    const width = 288
+    const left = Math.min(Math.max(8, r.left + r.width / 2 - width / 2), window.innerWidth - width - 8)
+    const above = r.top > 200
+    setPos({ left, top: above ? r.top - 8 : r.bottom + 8, above })
+  }
+  const hide = () => setPos(null)
+
+  useEffect(() => {
+    if (!pos) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (e.stopPropagation(), hide())
+    document.addEventListener('keydown', onKey, true)
+    window.addEventListener('scroll', hide, true)
+    return () => {
+      document.removeEventListener('keydown', onKey, true)
+      window.removeEventListener('scroll', hide, true)
+    }
+  }, [pos])
+
+  return (
+    <>
+      <button
+        ref={btn}
+        type="button"
+        aria-label={`What is “${label}”?`}
+        aria-describedby={pos ? id : undefined}
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
+        onClick={(e) => {
+          e.preventDefault()
+          if (pos) hide()
+          else show()
+        }}
+        className={cn(
+          'inline-grid size-4 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          className,
+        )}
+      >
+        <Info className="size-3.5" aria-hidden />
+      </button>
+      {pos && (
+        <span
+          id={id}
+          role="tooltip"
+          style={{ left: pos.left, top: pos.top, width: 288 }}
+          className={cn(
+            'pointer-events-none fixed z-[60] rounded-lg border bg-popover px-3 py-2 text-xs leading-relaxed font-normal text-popover-foreground shadow-lg',
+            pos.above && '-translate-y-full',
+          )}
+        >
+          <span className="mb-0.5 block font-semibold">{label}</span>
+          {children}
+        </span>
+      )}
+    </>
   )
 }
 

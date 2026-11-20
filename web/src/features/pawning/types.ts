@@ -25,6 +25,7 @@ export type TicketItem = {
   quantity: number
   gross_weight: string
   net_weight: string
+  density_reading: string | null
   karat_rate_per_8g: Money
   assessed_value: Money
   status: string

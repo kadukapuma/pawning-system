@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Gem, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { errorMessage } from '@/lib/api'
@@ -15,7 +15,6 @@ type FormValues = z.infer<typeof schema>
 
 export function LoginPage() {
   const { user, login } = useAuth()
-  const navigate = useNavigate()
   const location = useLocation()
   const [serverError, setServerError] = useState<string | null>(null)
   const from = (location.state as { from?: string } | null)?.from ?? '/'
@@ -29,7 +28,6 @@ export function LoginPage() {
     setServerError(null)
     try {
       await login(values.username, values.password)
-      navigate(from, { replace: true })
     } catch (e) {
       setServerError(errorMessage(e))
     }

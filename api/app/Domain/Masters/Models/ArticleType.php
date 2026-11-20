@@ -10,7 +10,7 @@ class ArticleType extends Model
 {
     use Auditable;
 
-    protected $fillable = ['category_id', 'code', 'name', 'is_active'];
+    protected $fillable = ['category_id', 'code', 'name', 'sub_category', 'is_active'];
 
     protected function casts(): array
     {

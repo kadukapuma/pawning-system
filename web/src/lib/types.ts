@@ -25,10 +25,12 @@ export type Karat = {
   sort_order: number
   is_active: boolean
   current_rate: KaratRate | null
+  /** Rate in force before the current one (index endpoint only). */
+  previous_rate?: KaratRate | null
 }
 
 export type ArticleCategory = { id: number; name: string; metal: string; is_active?: boolean; types_count?: number }
-export type ArticleType = { id: number; category_id: number; code: string; name: string; is_active?: boolean; category?: { id: number; name: string } }
+export type ArticleType = { id: number; category_id: number; code: string; name: string; sub_category?: string | null; is_active?: boolean; category?: { id: number; name: string } }
 export type ArticleCondition = { id: number; name: string; is_active?: boolean }
 
 export type SchemeVersion = {

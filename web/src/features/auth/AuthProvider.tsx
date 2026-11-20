@@ -63,7 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSelectedBranchId(null)
       await csrfCookie()
       const { data } = await api.post<{ data: AuthUser }>('/api/v1/auth/login', { username, password })
-      queryClient.clear()
+      // Clear branch/data caches after login, but keep the auth user cache intact.
+      // Clearing ME_KEY before setQueryData can briefly return the app to loading
+      // and make the login redirect depend on a page refresh.
+      await queryClient.cancelQueries()
+      queryClient.removeQueries({ predicate: (query) => {
+        const key = query.queryKey
+        return !(key[0] === 'auth' && key[1] === 'me')
+      } })
       queryClient.setQueryData(ME_KEY, data.data)
     },
     [queryClient],

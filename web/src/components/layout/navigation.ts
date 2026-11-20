@@ -80,8 +80,8 @@ export const navigation: NavGroup[] = [
     items: [
       { label: 'Karats & Rates', to: '/masters/karats', permission: 'karat_rates.manage' },
       { label: 'Pawn Schemes', to: '/masters/schemes', permission: 'schemes.manage' },
-      { label: 'Article Categories', to: '/masters/categories', permission: 'masters.manage' },
-      { label: 'Article Types', to: '/masters/article-types', permission: 'masters.manage' },
+      { label: 'Item Categories', to: '/masters/categories', permission: 'masters.manage' },
+      { label: 'Item Setup', to: '/masters/article-types', permission: 'masters.manage' },
       { label: 'Conditions', to: '/masters/conditions', permission: 'masters.manage' },
       { label: 'Banks', to: '/masters/banks', permission: 'masters.manage' },
     ],

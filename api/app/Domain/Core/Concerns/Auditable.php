@@ -38,7 +38,8 @@ trait Auditable
 
         AuditLog::create([
             'user_id' => auth()->id(),
-            'branch_id' => $this->getAttribute('branch_id') ?? app(BranchContext::class)->id(),
+            // Not every audited table has branch_id; reading it via getAttribute() would throw in strict mode.
+            'branch_id' => ($this->getAttributes()['branch_id'] ?? null) ?? app(BranchContext::class)->id(),
             'auditable_type' => $this->getMorphClass(),
             'auditable_id' => $this->getKey(),
             'event' => $event,

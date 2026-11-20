@@ -24,7 +24,7 @@ class LookupController extends Controller
             'roles' => Role::orderBy('name')->pluck('name'),
             'karats' => Karat::active()->ordered()->with('currentRate')->get(),
             'article_categories' => ArticleCategory::where('is_active', true)->orderBy('name')->get(['id', 'name', 'metal']),
-            'article_types' => ArticleType::where('is_active', true)->orderBy('name')->get(['id', 'category_id', 'code', 'name']),
+            'article_types' => ArticleType::where('is_active', true)->orderBy('name')->get(['id', 'category_id', 'code', 'name', 'sub_category']),
             'article_conditions' => ArticleCondition::where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'schemes' => PawnScheme::active()->with('currentVersion')->orderBy('code')->get(),
             'banks' => Bank::where('is_active', true)->with('branches:id,bank_id,code,name')->orderBy('name')->get(['id', 'code', 'name']),

@@ -29,9 +29,11 @@
   --sidebar-foreground: oklch(0.93 0.01 220);
   --sidebar-muted: oklch(0.7 0.02 220);
   --sidebar-active: oklch(0.33 0.06 200);
-  /* Chart series (validated categorical palette, slots 1–2) and chart chrome. */
+  /* Chart series (validated categorical palette, slots 1–4) and chart chrome. */
   --chart-1: #2a78d6;
   --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
   --chart-grid: #e6e5e0;
   --chart-axis: #52514e;
 }
@@ -58,6 +60,8 @@
   --sidebar: oklch(0.14 0.02 240);
   --chart-1: #3987e5;
   --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
   --chart-grid: #383835;
   --chart-axis: #c3c2b7;
 }

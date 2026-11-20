@@ -1,56 +1,14 @@
-import { History, Pencil } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { Badge, Button, Card, Dialog, Field, Input, PageHeader, Spinner, Table, Td, Th } from '@/components/ui'
+import { History, Pencil, Plus } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Badge, Button, Card, Dialog, PageHeader, Select, Spinner, Table, Td, Th } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useApiMutation, useApiQuery } from '@/lib/hooks'
-import type { Scheme, SchemeVersion } from '@/lib/types'
+import type { Scheme } from '@/lib/types'
 import { formatMoney } from '@/lib/utils'
+import { SchemeForm } from './SchemeForm'
+import { TERM_KEYS, toPayload, valuesFrom, type SchemeFormValues } from './schemeTerms'
 
-type TermKey = Exclude<keyof SchemeVersion, 'id' | 'scheme_id' | 'effective_from' | 'effective_to' | 'created_at' | 'creator'>
-
-/** Form layout for scheme terms, grouped as the business thinks about them. */
-const GROUPS: { title: string; fields: [TermKey, string, string?][] }[] = [
-  {
-    title: 'Loan amount band & term',
-    fields: [
-      ['min_amount', 'Minimum loan (Rs.)'],
-      ['max_amount', 'Maximum loan (Rs.)', 'Empty = no limit'],
-      ['valid_days', 'Valid days', 'Used for Silver expiry'],
-      ['max_term_months', 'Maximum term (months)'],
-    ],
-  },
-  {
-    title: 'Interest',
-    fields: [
-      ['period1_days', 'Period 1 (days)'], ['rate1', 'Rate 1 (%)'],
-      ['period2_days', 'Period 2 (days)'], ['rate2', 'Rate 2 (%)'],
-      ['period3_days', 'Period 3 (days)'], ['rate3', 'Rate 3 (% per month)'],
-      ['penalty_rate_monthly', 'Penalty after valid period (% / month)'],
-    ],
-  },
-  {
-    title: 'Charges',
-    fields: [
-      ['service_charge', 'Service charge (Rs.)'],
-      ['service_charge_threshold', 'Service charge threshold (Rs.)'],
-      ['service_charge_below_threshold', 'Service charge below threshold (Rs.)'],
-      ['service_charge_above_percent', 'Service charge above threshold (%)'],
-      ['document_charge', 'Document charge (Rs.)'],
-      ['stamp_duty', 'Stamp duty (Rs.)'],
-      ['postage_charge', 'Postage per letter (Rs.)'],
-      ['min_capital_after_part_payment', 'Min. capital after part payment (Rs.)'],
-    ],
-  },
-  {
-    title: 'Arrears schedule (days)',
-    fields: [
-      ['letter_1_days', 'Letter 1 after expiry'],
-      ['letter_2_days', 'Letter 2 after letter 1'],
-      ['letter_3_days', 'Letter 3 after letter 2'],
-      ['forfeit_reminder_days', 'Forfeit reminder after letter 3'],
-    ],
-  },
-]
+const today = () => new Date().toISOString().slice(0, 10)
 
 const methodLabel = { tiered: 'Tiered (gold)', monthly_penalty: 'Monthly + penalty', silver: 'Silver' } as const
 
@@ -59,12 +17,14 @@ export function SchemesPage() {
   const schemes = useApiQuery<Scheme[]>(['schemes'], '/api/v1/schemes')
   const [editing, setEditing] = useState<Scheme | null>(null)
   const [historyFor, setHistoryFor] = useState<Scheme | null>(null)
+  const [adding, setAdding] = useState(false)
 
   return (
     <div>
       <PageHeader
         title="Pawn schemes"
         description="Receipt types. Gold types are picked by loan amount. Changing terms creates a new version — existing tickets keep the interest terms they were issued with."
+        actions={can('schemes.manage') && <Button onClick={() => setAdding(true)}><Plus className="size-4" /> New scheme</Button>}
       />
 
       {schemes.isPending ? (
@@ -110,8 +70,9 @@ export function SchemesPage() {
         </div>
       )}
 
-      <TermsDialog scheme={editing} onClose={() => setEditing(null)} />
+      <TermsDialog scheme={editing} schemes={schemes.data ?? []} onClose={() => setEditing(null)} />
       <HistoryDialog scheme={historyFor} onClose={() => setHistoryFor(null)} />
+      <NewSchemeDialog open={adding} schemes={schemes.data ?? []} onClose={() => setAdding(false)} />
     </div>
   )
 }
@@ -125,8 +86,10 @@ function Term({ label, children }: { label: string; children: React.ReactNode })
   )
 }
 
-function TermsDialog({ scheme, onClose }: { scheme: Scheme | null; onClose: () => void }) {
-  const [form, setForm] = useState<Record<string, string>>({})
+/** Change terms of an existing scheme: saves a new version. */
+function TermsDialog({ scheme, schemes, onClose }: { scheme: Scheme | null; schemes: Scheme[]; onClose: () => void }) {
+  const [form, setForm] = useState<SchemeFormValues>({})
+  const original = useMemo(() => (scheme ? valuesFrom(scheme.current_version) : null), [scheme])
   const save = useApiMutation<Record<string, string | null>>({
     url: () => `/api/v1/schemes/${scheme?.id}/versions`,
     invalidate: [['schemes'], ['lookups']],
@@ -135,51 +98,109 @@ function TermsDialog({ scheme, onClose }: { scheme: Scheme | null; onClose: () =
   })
 
   useEffect(() => {
-    const v = scheme?.current_version
-    if (v) {
-      const f: Record<string, string> = { effective_from: new Date().toISOString().slice(0, 10) }
-      GROUPS.flatMap((g) => g.fields).forEach(([k]) => (f[k] = v[k] === null ? '' : String(v[k])))
-      setForm(f)
+    if (original) {
+      setForm({ ...original, effective_from: today() })
       save.clearErrors()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scheme])
+  }, [original])
 
-  const submit = () => save.mutate(Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v === '' ? null : v])))
+  const unchanged = !!original && TERM_KEYS.every((k) => Number(original[k]) === Number(form[k] ?? '')) && original.no_limit === form.no_limit
+  const errorCount = Object.keys(save.fieldErrors).length
 
   return (
     <Dialog
       open={!!scheme}
       onClose={onClose}
       size="xl"
-      title={`Change terms — type ${scheme?.code ?? ''}`}
-      description="Saves a new version from the effective date. Tickets already issued keep their interest terms."
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={save.isPending} onClick={submit}>Save new version</Button></>}
+      title={`Change terms — ${scheme?.code ?? ''} · ${scheme?.name ?? ''}`}
+      description="Changed values are highlighted. Hover or tap the ⓘ next to any field to see what it does."
+      footer={
+        <>
+          {errorCount > 0 && <span className="mr-auto self-center text-xs text-destructive">Please fix {errorCount} field{errorCount === 1 ? '' : 's'} marked in red.</span>}
+          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button loading={save.isPending} disabled={unchanged} onClick={() => save.mutate(toPayload(form))}>Save new version</Button>
+        </>
+      }
     >
-      <div className="space-y-5">
-        <Field label="Effective from" className="max-w-xs" error={save.fieldErrors.effective_from} hint="Today or earlier; not before the current version.">
-          <Input type="date" value={form.effective_from ?? ''} onChange={(e) => setForm((f) => ({ ...f, effective_from: e.target.value }))} />
-        </Field>
-        {GROUPS.map((g) => (
-          <fieldset key={g.title}>
-            <legend className="mb-2 text-sm font-semibold">{g.title}</legend>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {g.fields.map(([k, label, hint]) => (
-                <Field key={k} label={label} hint={hint} error={save.fieldErrors[k]}>
-                  <Input
-                    type="number"
-                    min={0}
-                    step="any"
-                    value={form[k] ?? ''}
-                    onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
-                    aria-invalid={!!save.fieldErrors[k]}
-                  />
-                </Field>
-              ))}
-            </div>
-          </fieldset>
-        ))}
-      </div>
+      {scheme && (
+        <SchemeForm mode="change" form={form} setForm={setForm} errors={save.fieldErrors} schemes={schemes} self={scheme} original={original} />
+      )}
+    </Dialog>
+  )
+}
+
+/** Create a new receipt type with its first version of terms. */
+function NewSchemeDialog({ open, schemes, onClose }: { open: boolean; schemes: Scheme[]; onClose: () => void }) {
+  const [form, setForm] = useState<SchemeFormValues>({})
+  const [copyFrom, setCopyFrom] = useState('')
+  const save = useApiMutation<Record<string, string | null>>({
+    url: '/api/v1/schemes',
+    invalidate: [['schemes'], ['lookups']],
+    success: 'Scheme created',
+    onSuccess: onClose,
+  })
+
+  /** Copies the terms of another scheme, but leaves the loan band empty — it must differ anyway. */
+  const fromScheme = (id: string, base: SchemeFormValues) => {
+    const src = schemes.find((s) => String(s.id) === id)
+    const terms = valuesFrom(src?.current_version)
+    return {
+      ...base,
+      ...terms,
+      min_amount: '',
+      max_amount: '',
+      no_limit: '0',
+      interest_method: src?.interest_method ?? base.interest_method ?? 'tiered',
+    }
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const first = schemes.find((s) => s.interest_method === 'tiered') ?? schemes[0]
+    const id = first ? String(first.id) : ''
+    setCopyFrom(id)
+    setForm(fromScheme(id, { code: '', name: '', interest_method: 'tiered', effective_from: today() }))
+    save.clearErrors()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  const errorCount = Object.keys(save.fieldErrors).length
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      size="xl"
+      title="New pawn scheme"
+      description="Fill in the steps on the left; the summary on the right updates as you type. Hover or tap ⓘ for help on any field."
+      footer={
+        <>
+          {errorCount > 0 && <span className="mr-auto self-center text-xs text-destructive">Please fix {errorCount} field{errorCount === 1 ? '' : 's'} marked in red.</span>}
+          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button loading={save.isPending} onClick={() => save.mutate(toPayload(form))}><Plus className="size-4" /> Create scheme</Button>
+        </>
+      }
+    >
+      {schemes.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg bg-secondary/60 px-3 py-2 text-sm">
+          <label htmlFor="copy-from" className="font-medium">Start with the terms of</label>
+          <Select
+            id="copy-from"
+            className="h-8 w-auto min-w-48"
+            value={copyFrom}
+            onChange={(e) => {
+              setCopyFrom(e.target.value)
+              setForm((f) => (e.target.value ? fromScheme(e.target.value, f) : { code: f.code, name: f.name, interest_method: f.interest_method, effective_from: f.effective_from }))
+            }}
+          >
+            <option value="">nothing — start blank</option>
+            {schemes.map((s) => <option key={s.id} value={s.id}>{s.code} · {s.name}</option>)}
+          </Select>
+          <span className="text-xs text-muted-foreground">then change only what is different.</span>
+        </div>
+      )}
+      <SchemeForm mode="create" form={form} setForm={setForm} errors={save.fieldErrors} schemes={schemes} />
     </Dialog>
   )
 }

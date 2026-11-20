@@ -88,6 +88,7 @@ class ArticleMasterController extends Controller
             'code' => ['sometimes', 'nullable', 'string', 'max:20', Rule::unique('article_types', 'code')->ignore($t?->id)],
             'name' => [$req, 'string', 'max:100',
                 Rule::unique('article_types', 'name')->where('category_id', $categoryId)->ignore($t?->id)],
+            'sub_category' => ['sometimes', 'nullable', 'string', 'max:100'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
     }

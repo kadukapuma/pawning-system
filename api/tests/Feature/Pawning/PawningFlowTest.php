@@ -51,6 +51,19 @@ it('creates a pawn: numbers, maturity, cash journal', function () {
     assertLedgerBalanced();
 });
 
+it('saves the optional density meter reading per item without changing the value', function () {
+    $t = pawn(40000, 3, [item(['density_reading' => '17.85']), item()]);
+
+    expect($t['items'][0]['density_reading'])->toBe('17.850')
+        ->and($t['items'][1]['density_reading'])->toBeNull()
+        ->and($t['assessed_value'])->toBe('680000.00');   // 2 × 340,000 — the reading does not affect value
+
+    expect(api_('GET', "/pawn-tickets/{$t['id']}")->json('data.items.0.density_reading'))->toBe('17.850');
+
+    api_('POST', '/pawn-tickets', ['customer_id' => $this->customer->id, 'items' => [item(['density_reading' => -1])], 'amount' => 40000, 'months' => 3])
+        ->assertStatus(422)->assertJsonValidationErrors('items.0.density_reading');
+});
+
 it('rejects loans above the value, too-long terms and customers over their limit', function () {
     api_('POST', '/pawn-tickets', ['customer_id' => $this->customer->id, 'items' => [item()], 'amount' => 340001, 'months' => 1])
         ->assertStatus(422)->assertJsonValidationErrors('amount');

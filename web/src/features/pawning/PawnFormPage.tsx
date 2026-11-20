@@ -2,7 +2,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Badge, Button, Card, Field, Input, PageHeader, Select, Spinner, Textarea } from '@/components/ui'
+import { Badge, Button, Card, Field, InfoTip, Input, PageHeader, Select, Spinner, Textarea } from '@/components/ui'
 import { api, errorMessage } from '@/lib/api'
 import { useDebounced, useLookups } from '@/lib/hooks'
 import type { Customer } from '@/lib/types'
@@ -20,12 +20,13 @@ type Row = {
   quantity: string
   gross_weight: string
   net_weight: string
+  density_reading: string
 }
 
 let rowKey = 1
 const newRow = (): Row => ({
   key: rowKey++, category_id: '', article_type_id: '', karat_id: '', condition_id: '', description: '',
-  quantity: '1', gross_weight: '', net_weight: '',
+  quantity: '1', gross_weight: '', net_weight: '', density_reading: '',
 })
 
 const rowComplete = (r: Row) => r.category_id && r.karat_id && Number(r.gross_weight) > 0 && Number(r.net_weight) > 0
@@ -40,6 +41,7 @@ function toItem(r: Row) {
     quantity: Number(r.quantity) || 1,
     gross_weight: r.gross_weight,
     net_weight: r.net_weight,
+    density_reading: r.density_reading === '' ? null : r.density_reading,
   }
 }
 
@@ -151,12 +153,21 @@ export function PawnFormPage({ mode }: { mode: 'new' | 'opening' }) {
           <Button size="sm" variant="secondary" onClick={() => setRows((r) => [...r, newRow()])}><Plus className="size-4" /> Add article</Button>
         </div>
         <Card className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="w-full min-w-[1000px] text-sm">
             <thead>
               <tr className="bg-secondary/60 text-left text-xs text-muted-foreground">
                 <th className="px-2 py-2">Category *</th><th className="px-2">Article</th><th className="px-2">Karat *</th>
                 <th className="px-2">Condition</th><th className="w-16 px-2">Qty</th><th className="w-24 px-2">Gross g *</th>
-                <th className="w-24 px-2">Net g *</th><th className="px-2 text-right">Value</th><th />
+                <th className="w-24 px-2">Net g *</th>
+                <th className="w-24 px-2">
+                  <span className="inline-flex items-center gap-1">
+                    Density
+                    <InfoTip label="Density meter reading">
+                      The reading shown on the density meter when this item is tested. Optional — it is saved on the ticket for the record and does not change the value.
+                    </InfoTip>
+                  </span>
+                </th>
+                <th className="px-2 text-right">Value</th><th />
               </tr>
             </thead>
             <tbody>
@@ -196,6 +207,20 @@ export function PawnFormPage({ mode }: { mode: 'new' | 'opening' }) {
                     <td className="p-1.5">
                       <Input type="number" min={0} step="0.001" value={r.net_weight} onChange={(e) => update(r.key, { net_weight: e.target.value })} aria-invalid={!!err('net_weight')} />
                       {err('net_weight') && <span className="text-xs text-destructive">{err('net_weight')}</span>}
+                    </td>
+                    <td className="p-1.5">
+                      <Input
+                        type="number"
+                        min={0}
+                        step="0.001"
+                        inputMode="decimal"
+                        placeholder="—"
+                        aria-label="Density meter reading"
+                        value={r.density_reading}
+                        onChange={(e) => update(r.key, { density_reading: e.target.value })}
+                        aria-invalid={!!err('density_reading')}
+                      />
+                      {err('density_reading') && <span className="text-xs text-destructive">{err('density_reading')}</span>}
                     </td>
                     <td className="p-1.5 pt-3.5 text-right tabular-nums">{value ? formatMoney(value) : '—'}</td>
                     <td className="p-1.5">

@@ -11,7 +11,7 @@ const metalOptions = [
 export function CategoriesPage() {
   return (
     <SimpleMasterPage<ArticleCategory>
-      title="Article categories"
+      title="Item categories"
       description="Earring, chain, bangle… A SILVER category puts a pawn on the Silver scheme."
       endpoint="/api/v1/article-categories"
       queryKey="article-categories"
@@ -20,7 +20,7 @@ export function CategoriesPage() {
       columns={[
         { label: 'Name', render: (r) => <span className="font-medium">{r.name}</span> },
         { label: 'Metal', render: (r) => <span className="capitalize">{r.metal}</span> },
-        { label: 'Article types', render: (r) => r.types_count ?? 0, className: 'text-right' },
+        { label: 'Item types', render: (r) => r.types_count ?? 0, className: 'text-right' },
       ]}
       fields={[
         { name: 'name', label: 'Name', required: true },
@@ -37,20 +37,22 @@ export function ArticleTypesPage() {
 
   return (
     <SimpleMasterPage<ArticleType>
-      title="Article types"
-      description="Specific articles within a category. Codes are assigned automatically."
+      title="Item setup"
+      description="Specific items within a category. Codes are assigned automatically."
       endpoint="/api/v1/article-types"
       queryKey="article-types"
       permission="masters.manage"
-      searchText={(r) => `${r.code} ${r.name} ${r.category?.name ?? ''}`}
+      searchText={(r) => `${r.code} ${r.name} ${r.sub_category ?? ''} ${r.category?.name ?? ''}`}
       columns={[
         { label: 'Code', render: (r) => <span className="font-mono text-xs">{r.code}</span> },
         { label: 'Name', render: (r) => <span className="font-medium">{r.name}</span> },
         { label: 'Category', render: (r) => r.category?.name },
+        { label: 'Sub category', render: (r) => r.sub_category || <span className="text-muted-foreground">—</span> },
       ]}
       fields={[
         { name: 'category_id', label: 'Category', type: 'select', options: categoryOptions, required: true },
         { name: 'name', label: 'Name', required: true },
+        { name: 'sub_category', label: 'Sub category', hint: 'Optional, e.g. Ladies, Gents, Kids.' },
         { name: 'is_active', label: 'Active', type: 'checkbox' },
       ]}
     />
@@ -60,8 +62,8 @@ export function ArticleTypesPage() {
 export function ConditionsPage() {
   return (
     <SimpleMasterPage<ArticleCondition>
-      title="Article conditions"
-      description="Condition recorded for each article when it is pawned."
+      title="Item conditions"
+      description="Condition recorded for each item when it is pawned."
       endpoint="/api/v1/article-conditions"
       queryKey="article-conditions"
       permission="masters.manage"

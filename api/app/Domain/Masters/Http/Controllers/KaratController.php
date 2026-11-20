@@ -15,7 +15,24 @@ class KaratController extends Controller
 {
     public function index(): JsonResource
     {
-        return JsonResource::collection(Karat::with('currentRate.creator:id,name')->ordered()->get());
+        $karats = Karat::with('currentRate.creator:id,name')->ordered()->get();
+
+        // The rate that was in force just before the current one, so the UI can
+        // show what changed. One small indexed query per grade (there are ~16).
+        foreach ($karats as $karat) {
+            $current = $karat->currentRate;
+            $karat->setAttribute('previous_rate', $current
+                ? $karat->rates()
+                    ->where(fn ($q) => $q
+                        ->where('effective_from', '<', $current->effective_from)
+                        ->orWhere(fn ($q) => $q
+                            ->where('effective_from', $current->effective_from)
+                            ->where('id', '<', $current->id)))
+                    ->first()
+                : null);
+        }
+
+        return JsonResource::collection($karats);
     }
 
     public function store(Request $request): JsonResource
@@ -42,9 +59,25 @@ class KaratController extends Controller
         return new JsonResource($karat->load('currentRate'));
     }
 
-    public function history(Karat $karat): JsonResource
+    /**
+     * Rate history, newest first. With ?days=N only changes in the last N days
+     * are returned, plus the rate that was in force when that window opened, so
+     * a chart of the window starts at the right value.
+     */
+    public function history(Request $request, Karat $karat): JsonResource
     {
-        return JsonResource::collection($karat->rates()->with('creator:id,name')->limit(100)->get());
+        $days = $request->validate(['days' => ['nullable', 'integer', 'min:1', 'max:3650']])['days'] ?? null;
+        $query = fn () => $karat->rates()->with('creator:id,name')->where('effective_from', '<=', now());
+
+        if (! $days) {
+            return JsonResource::collection($query()->limit(1000)->get());
+        }
+
+        $since = now()->subDays((int) $days);
+        $rates = $query()->where('effective_from', '>=', $since)->limit(1000)->get();
+        $opening = $query()->where('effective_from', '<', $since)->first();
+
+        return JsonResource::collection($opening ? $rates->push($opening) : $rates);
     }
 
     /**

@@ -139,13 +139,14 @@ export function TicketDetailPage() {
       <Card>
         <h2 className="px-4 pt-4 text-sm font-semibold">Articles ({t.items?.length}) · {Number(t.net_weight).toFixed(3)} g net</h2>
         <Table className="mt-2">
-          <thead><tr><Th>Category</Th><Th>Article</Th><Th>Karat</Th><Th>Condition</Th><Th>Qty</Th><Th className="text-right">Gross g</Th><Th className="text-right">Net g</Th><Th className="text-right">Value</Th><Th>Status</Th></tr></thead>
+          <thead><tr><Th>Category</Th><Th>Article</Th><Th>Karat</Th><Th>Condition</Th><Th>Qty</Th><Th className="text-right">Gross g</Th><Th className="text-right">Net g</Th><Th className="text-right">Density</Th><Th className="text-right">Value</Th><Th>Status</Th></tr></thead>
           <tbody>
             {t.items?.map((i) => (
               <tr key={i.id}>
                 <Td>{i.category}</Td><Td>{i.article_type ?? i.description}</Td><Td>{i.karat}</Td><Td>{i.condition}</Td><Td>{i.quantity}</Td>
                 <Td className="text-right tabular-nums">{Number(i.gross_weight).toFixed(3)}</Td>
                 <Td className="text-right tabular-nums">{Number(i.net_weight).toFixed(3)}</Td>
+                <Td className="text-right tabular-nums">{i.density_reading != null ? Number(i.density_reading) : <span className="text-muted-foreground">—</span>}</Td>
                 <Td className="text-right tabular-nums">{formatMoney(i.assessed_value)}</Td>
                 <Td><Badge>{i.status}</Badge></Td>
               </tr>

@@ -21,6 +21,7 @@ class PawnTicketItem extends Model
             'quantity' => 'integer',
             'gross_weight' => 'decimal:3',
             'net_weight' => 'decimal:3',
+            'density_reading' => 'decimal:3',
             'karat_rate_per_8g' => 'decimal:2',
             'assessed_value' => 'decimal:2',
             'market_value' => 'decimal:2',

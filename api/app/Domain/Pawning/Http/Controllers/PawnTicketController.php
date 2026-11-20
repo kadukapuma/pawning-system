@@ -226,6 +226,7 @@ class PawnTicketController extends Controller
             'items.*.quantity' => ['nullable', 'integer', 'min:1', 'max:999'],
             'items.*.gross_weight' => ['required', 'numeric', 'gt:0', 'max:99999'],
             'items.*.net_weight' => ['required', 'numeric', 'gt:0', 'max:99999'],
+            'items.*.density_reading' => ['nullable', 'numeric', 'min:0', 'max:9999.999'],
         ];
     }
 

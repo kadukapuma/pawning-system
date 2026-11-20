@@ -62,6 +62,7 @@ class PawnTicketResource extends JsonResource
                 'quantity' => $i->quantity,
                 'gross_weight' => $i->gross_weight,
                 'net_weight' => $i->net_weight,
+                'density_reading' => $i->density_reading,
                 'karat_rate_per_8g' => $i->karat_rate_per_8g,
                 'assessed_value' => $i->assessed_value,
                 'status' => $i->status,

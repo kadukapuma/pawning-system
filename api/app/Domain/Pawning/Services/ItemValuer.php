@@ -54,6 +54,9 @@ class ItemValuer
                 'quantity' => (int) ($item['quantity'] ?? 1),
                 'gross_weight' => number_format((float) $item['gross_weight'], 3, '.', ''),
                 'net_weight' => number_format((float) $item['net_weight'], 3, '.', ''),
+                'density_reading' => isset($item['density_reading']) && $item['density_reading'] !== ''
+                    ? number_format((float) $item['density_reading'], 3, '.', '')
+                    : null,
                 'karat_rate_per_8g' => Money::of($rate),
                 'assessed_value' => $itemValue,
                 'market_value' => $itemMarket,
