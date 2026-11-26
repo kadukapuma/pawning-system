@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Ban, Banknote, Lock, Printer, RefreshCw, Unlock, Wallet } from 'lucide-react'
+import { ArrowLeft, Ban, Banknote, Lock, MessageSquare, Printer, RefreshCw, Unlock, Wallet } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -11,6 +11,8 @@ import { PartPaymentDialog, ReasonDialog, RedemptionDialog, RenewalDialog } from
 import { statusTone, txnLabel, type PawnTicket, type Statement } from './types'
 
 type DialogName = 'part-payment' | 'renewal' | 'redeem' | 'block' | 'unblock' | 'cancel' | null
+
+const SMS_SLIP_TYPES = ['pawn', 'part_payment', 'renewal', 'redemption']
 
 export function TicketDetailPage() {
   const { id } = useParams()
@@ -50,6 +52,14 @@ export function TicketDetailPage() {
     window.open(`/print/transaction/${txnId}`, '_blank')
   }
   const refresh = () => qc.invalidateQueries({ queryKey: ['ticket', id] })
+  const sendSlip = async (txnId: number, txnNo: string) => {
+    if (!window.confirm(`Send the SMS slip for ${txnNo} to ${t.customer?.phone1}?`)) return
+    try {
+      const r = (await api.post<{ data: { status: string; error: string | null } }>(`/api/v1/pawn-transactions/${txnId}/sms`)).data.data
+      if (r.status === 'sent') toast.success('SMS slip sent')
+      else toast.error(r.error ?? 'The SMS slip was not sent')
+    } catch (e) { toast.error(errorMessage(e)) }
+  }
 
   return (
     <div className="space-y-5">
@@ -172,9 +182,12 @@ export function TicketDetailPage() {
                 <Td className="text-right tabular-nums text-destructive">{Number(x.cash_paid) ? formatMoney(x.cash_paid) : ''}</Td>
                 <Td className="text-right tabular-nums font-medium">{formatMoney(x.principal_after)}</Td>
                 <Td className="text-xs">{x.created_by}</Td>
-                <Td>
+                <Td className="whitespace-nowrap">
                   {x.type !== 'rounding' && (
                     <Button size="sm" variant="ghost" onClick={() => window.open(`/print/transaction/${x.id}`, '_blank')} aria-label="Print receipt"><Printer className="size-3.5" /></Button>
+                  )}
+                  {can('sms.send') && SMS_SLIP_TYPES.includes(x.type) && (
+                    <Button size="sm" variant="ghost" onClick={() => sendSlip(x.id, x.txn_no)} aria-label="Send SMS slip" title="Send SMS slip"><MessageSquare className="size-3.5" /></Button>
                   )}
                 </Td>
               </tr>

@@ -101,6 +101,7 @@ export type Customer = {
   phone1: string
   phone2: string | null
   email: string | null
+  sms_language: 'en' | 'si' | 'ta' | null
   status: CustomerStatus
   pawn_amount_limit: Money | null
   pawn_count_limit: number | null

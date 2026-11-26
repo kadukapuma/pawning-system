@@ -34,7 +34,7 @@ class Customer extends Model
     protected $fillable = [
         'branch_id', 'code', 'title', 'first_name', 'middle_name', 'last_name', 'gender', 'nic',
         'driving_license', 'passport', 'other_identification', 'date_of_birth',
-        'address_line1', 'address_line2', 'city', 'phone1', 'phone2', 'email', 'photo_path',
+        'address_line1', 'address_line2', 'city', 'phone1', 'phone2', 'email', 'sms_language', 'photo_path',
         'status', 'pawn_amount_limit', 'pawn_count_limit', 'notes', 'created_by', 'updated_by',
     ];
 

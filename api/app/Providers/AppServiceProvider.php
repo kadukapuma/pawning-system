@@ -59,6 +59,9 @@ class AppServiceProvider extends ServiceProvider
             'day_closing' => \App\Domain\Accounting\Models\DayClosing::class,
             'bank_account' => \App\Domain\Banking\Models\BankAccount::class,
             'cheque' => \App\Domain\Banking\Models\Cheque::class,
+            'sms_setting' => \App\Domain\Sms\Models\SmsSetting::class,
+            'sms_rule' => \App\Domain\Sms\Models\SmsRule::class,
+            'sms_template' => \App\Domain\Sms\Models\SmsTemplate::class,
         ]);
 
         // super_admin passes every permission check.

@@ -6,6 +6,7 @@ import {
   Gem,
   LayoutDashboard,
   Landmark,
+  MessageSquare,
   Settings,
   ShoppingCart,
   Users,
@@ -44,6 +45,16 @@ export const navigation: NavGroup[] = [
     ],
   },
   { label: 'Customers', icon: Users, to: '/customers', permission: 'customers.view' },
+  {
+    label: 'SMS',
+    icon: MessageSquare,
+    items: [
+      { label: 'Reminders', to: '/sms/reminders', permission: 'sms.send' },
+      { label: 'Custom SMS', to: '/sms/bulk', permission: 'sms.bulk' },
+      { label: 'History', to: '/sms/history', permission: 'sms.view' },
+      { label: 'SMS Settings', to: '/sms/settings', permission: 'sms.settings' },
+    ],
+  },
   {
     label: 'Stock & Sales',
     icon: ShoppingCart,

@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        \App\Domain\Sms\Console\RunSmsCommand::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         // Cookie-based Sanctum auth for the React SPA (same-site, CSRF protected).
         $middleware->statefulApi();

@@ -13,6 +13,7 @@ use App\Domain\Pawning\Services\RedemptionService;
 use App\Domain\Pawning\Services\RenewalService;
 use App\Domain\Pawning\Services\TicketAdminService;
 use App\Domain\Pawning\Services\TicketCalculator;
+use App\Domain\Sms\Services\SlipNotifier;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -106,7 +107,7 @@ class PawnTicketController extends Controller
         return response()->json(['data' => $service->quote($data['items'], isset($data['amount']) ? (string) $data['amount'] : null)]);
     }
 
-    public function store(Request $request, PawnService $service): JsonResponse
+    public function store(Request $request, PawnService $service, SlipNotifier $slips): JsonResponse
     {
         $this->authorize('pawn.create');
         $data = $request->validate($this->itemRules() + [
@@ -116,7 +117,10 @@ class PawnTicketController extends Controller
             'remarks' => ['nullable', 'string', 'max:500'],
         ]);
 
-        return $this->created($service->create($data));
+        $ticket = $service->create($data);
+        $slips->afterTransaction($ticket->transactions()->first());
+
+        return $this->created($ticket);
     }
 
     public function storeOpening(Request $request, PawnService $service): JsonResponse
@@ -144,7 +148,7 @@ class PawnTicketController extends Controller
         return $this->quoteResponse($s->quote($ticket, (string) $d['amount'], (string) ($d['discount'] ?? 0), (int) ($d['months'] ?? 1)));
     }
 
-    public function partPayment(Request $request, PawnTicket $ticket, PartPaymentService $s): JsonResponse
+    public function partPayment(Request $request, PawnTicket $ticket, PartPaymentService $s, SlipNotifier $slips): JsonResponse
     {
         $this->authorize('pawn.part_payment');
         $d = $request->validate([
@@ -152,6 +156,8 @@ class PawnTicketController extends Controller
             'months' => ['required', 'integer', 'min:1'], 'remarks' => ['nullable', 'string', 'max:500'],
         ]);
         $txn = $s->pay($ticket->id, (string) $d['amount'], (string) ($d['discount'] ?? 0), (int) $d['months'], $d['remarks'] ?? null);
+
+        $slips->afterTransaction($txn);
 
         return response()->json(['data' => $txn], 201);
     }
@@ -164,7 +170,7 @@ class PawnTicketController extends Controller
         return $this->quoteResponse($s->quote($ticket, (string) ($d['extra_cash'] ?? 0), (string) ($d['discount'] ?? 0), (int) ($d['months'] ?? 1)));
     }
 
-    public function renew(Request $request, PawnTicket $ticket, RenewalService $s): JsonResponse
+    public function renew(Request $request, PawnTicket $ticket, RenewalService $s, SlipNotifier $slips): JsonResponse
     {
         $this->authorize('pawn.renew');
         $d = $request->validate([
@@ -172,6 +178,8 @@ class PawnTicketController extends Controller
             'months' => ['required', 'integer', 'min:1'], 'remarks' => ['nullable', 'string', 'max:500'],
         ]);
         $txn = $s->renew($ticket->id, (string) ($d['extra_cash'] ?? 0), (string) ($d['discount'] ?? 0), (int) $d['months'], $d['remarks'] ?? null);
+
+        $slips->afterTransaction($txn);
 
         return response()->json(['data' => $txn], 201);
     }
@@ -184,7 +192,7 @@ class PawnTicketController extends Controller
         return $this->quoteResponse($s->quote($ticket, (string) ($d['discount'] ?? 0)));
     }
 
-    public function redeem(Request $request, PawnTicket $ticket, RedemptionService $s): JsonResponse
+    public function redeem(Request $request, PawnTicket $ticket, RedemptionService $s, SlipNotifier $slips): JsonResponse
     {
         $this->authorize('pawn.redeem');
         $d = $request->validate([
@@ -192,6 +200,8 @@ class PawnTicketController extends Controller
             'remarks' => ['nullable', 'string', 'max:500'],
         ]);
         $txn = $s->redeem($ticket->id, (string) ($d['discount'] ?? 0), isset($d['cash_received']) ? (string) $d['cash_received'] : null, $d['remarks'] ?? null);
+
+        $slips->afterTransaction($txn);
 
         return response()->json(['data' => $txn], 201);
     }

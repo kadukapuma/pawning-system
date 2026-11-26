@@ -40,6 +40,7 @@ class CustomerResource extends JsonResource
             'phone1' => $this->phone1,
             'phone2' => $this->phone2,
             'email' => $this->email,
+            'sms_language' => $this->sms_language,
             'status' => $this->status,
             'pawn_amount_limit' => $this->pawn_amount_limit,
             'pawn_count_limit' => $this->pawn_count_limit,

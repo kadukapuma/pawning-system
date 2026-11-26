@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Plus, ShieldAlert, SlidersHorizontal } from 'lucide-react'
+import { ArrowLeft, MessageSquare, Pencil, Plus, ShieldAlert, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Badge, Button, Card, Dialog, Field, Input, Select, Spinner, Table, Td, Textarea, Th } from '@/components/ui'
@@ -21,6 +21,7 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
 
 export function CustomerDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { can } = useAuth()
   const customer = useApiQuery<Customer>(['customers', id], `/api/v1/customers/${id}`)
   const [editing, setEditing] = useState(false)
@@ -48,6 +49,9 @@ export function CustomerDetailPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {can('sms.bulk') && (
+            <Button variant="secondary" onClick={() => navigate(`/sms/bulk?customer=${c.id}`)}><MessageSquare className="size-4" /> Send SMS</Button>
+          )}
           {can('customers.manage') && (
             <>
               <Button variant="secondary" onClick={() => setEditing(true)}><Pencil className="size-4" /> Edit</Button>

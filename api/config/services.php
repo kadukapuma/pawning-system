@@ -28,6 +28,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // SMS gateway (app/Domain/Sms).
+    'notifylk' => [
+        'url' => env('NOTIFYLK_URL') ?: 'https://app.notify.lk/api/v1/send',
+        'user_id' => env('NOTIFYLK_USER_ID'),
+        'api_key' => env('NOTIFYLK_API_KEY'),
+        'sender_id' => env('NOTIFYLK_SENDER_ID'),
+        'ca_bundle' => env('NOTIFYLK_CA_BUNDLE'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

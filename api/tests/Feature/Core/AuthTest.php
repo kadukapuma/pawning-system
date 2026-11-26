@@ -74,7 +74,7 @@ it('gives super admin every permission', function () {
 
     $this->actingAs($admin)->withHeaders(spaHeaders())->getJson('/api/v1/auth/me')
         ->assertOk()
-        ->assertJsonCount(39, 'data.permissions')
+        ->assertJsonCount(43, 'data.permissions')
         ->assertJsonCount(2, 'data.branches');
 
     expect($admin->can('forfeit.execute'))->toBeTrue();

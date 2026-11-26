@@ -34,5 +34,11 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Never use the real SMS account in tests. -->
+        <env name="NOTIFYLK_URL" value="" force="true"/>
+        <env name="NOTIFYLK_USER_ID" value="" force="true"/>
+        <env name="NOTIFYLK_API_KEY" value="" force="true"/>
+        <env name="NOTIFYLK_SENDER_ID" value="" force="true"/>
+        <env name="NOTIFYLK_CA_BUNDLE" value="" force="true"/>
     </php>
 </phpunit>

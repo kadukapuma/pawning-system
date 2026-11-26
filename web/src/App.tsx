@@ -24,6 +24,10 @@ import { ReportsPage } from '@/features/reports/ReportsPage'
 import { StockCheckPage } from '@/features/reports/StockCheckPage'
 import { InventoryPage } from '@/features/sales/InventoryPage'
 import { InvoicePrintPage, NewSalePage, SalesListPage } from '@/features/sales/SalesPages'
+import { SmsBulkPage } from '@/features/sms/SmsBulkPage'
+import { SmsHistoryPage } from '@/features/sms/SmsHistoryPage'
+import { SmsRemindersPage } from '@/features/sms/SmsRemindersPage'
+import { SmsSettingsPage } from '@/features/sms/SmsSettingsPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
@@ -72,6 +76,10 @@ const router = createBrowserRouter([
       { path: 'banking/accounts', element: <BankAccountsPage /> },
       { path: 'banking/cheques', element: <ChequesPage /> },
       { path: 'banking/reconciliation', element: <ReconciliationPage /> },
+      { path: 'sms/reminders', element: <SmsRemindersPage /> },
+      { path: 'sms/bulk', element: <SmsBulkPage /> },
+      { path: 'sms/history', element: <SmsHistoryPage /> },
+      { path: 'sms/settings', element: <SmsSettingsPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'reports/:report', element: <ReportsPage /> },
       { path: 'pawning/stock-check', element: <StockCheckPage /> },

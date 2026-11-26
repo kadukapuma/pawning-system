@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             PawnSchemeSeeder::class,
             ChartOfAccountsSeeder::class,
             DocumentSequenceSeeder::class,
+            SmsSeeder::class,                  // everything switched off
             DemoUsersSeeder::class,            // local only
         ]);
     }

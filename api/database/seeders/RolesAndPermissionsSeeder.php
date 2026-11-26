@@ -28,6 +28,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'banking.view', 'banking.manage', 'banking.reconcile',
         // Reports
         'reports.view', 'reports.all_branches',
+        // SMS
+        'sms.view', 'sms.send', 'sms.bulk', 'sms.settings',
         // Masters & admin
         'masters.manage', 'schemes.manage', 'karat_rates.manage',
         'users.manage', 'branches.manage', 'audit.view',
@@ -60,12 +62,14 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventory.view', 'sales.create', 'sales.void',
                 'accounting.view', 'vouchers.create', 'vouchers.approve', 'day_closing.close',
                 'banking.view', 'banking.manage', 'reports.view',
+                'sms.view', 'sms.send', 'sms.bulk',
             ],
             'cashier' => [
                 'customers.view', 'customers.manage',
                 'pawn.view', 'pawn.create', 'pawn.part_payment', 'pawn.renew', 'pawn.redeem',
                 'arrears.view', 'arrears.issue_letters', 'forfeit.manage_promises',
                 'inventory.view', 'sales.create', 'vouchers.create', 'reports.view',
+                'sms.view', 'sms.send',
             ],
             'valuer' => [
                 'customers.view', 'pawn.view', 'pawn.create', 'pawn.stock_check', 'inventory.view',

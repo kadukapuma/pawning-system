@@ -16,6 +16,8 @@ use App\Domain\Masters\Http\Controllers\PawnSchemeController;
 use App\Domain\Pawning\Http\Controllers\PawnTicketController;
 use App\Domain\Reports\Http\Controllers\ReportController;
 use App\Domain\Sales\Http\Controllers\SalesController;
+use App\Domain\Sms\Http\Controllers\SmsController;
+use App\Domain\Sms\Http\Controllers\SmsSettingsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -135,6 +137,24 @@ Route::prefix('v1')->group(function () {
         Route::get('/stock-checks/{session}', [ReportController::class, 'stockCheckSummary'])->whereNumber('session');
         Route::post('/stock-checks/{session}/scan', [ReportController::class, 'scan'])->whereNumber('session');
         Route::post('/stock-checks/{session}/complete', [ReportController::class, 'completeStockCheck'])->whereNumber('session');
+
+        // --- SMS ---------------------------------------------------------------
+        Route::get('/sms/status', [SmsController::class, 'status']);
+        Route::get('/sms/messages', [SmsController::class, 'messages']);
+        Route::post('/sms/messages/flush', [SmsController::class, 'flush']);
+        Route::post('/sms/messages/{message}/retry', [SmsController::class, 'retry']);
+        Route::post('/sms/messages/{message}/cancel', [SmsController::class, 'cancel']);
+        Route::get('/sms/due/{type}', [SmsController::class, 'due']);
+        Route::post('/sms/due/{type}', [SmsController::class, 'sendDue']);
+        Route::post('/sms/bulk/preview', [SmsController::class, 'bulkPreview']);
+        Route::post('/sms/bulk', [SmsController::class, 'bulkSend']);
+        Route::post('/pawn-transactions/{transaction}/sms', [SmsController::class, 'slip'])->whereNumber('transaction');
+        Route::get('/sms/settings', [SmsSettingsController::class, 'show']);
+        Route::put('/sms/settings', [SmsSettingsController::class, 'update']);
+        Route::put('/sms/rules/{type}', [SmsSettingsController::class, 'updateRule']);
+        Route::post('/sms/preview', [SmsSettingsController::class, 'preview']);
+        Route::post('/sms/test', [SmsSettingsController::class, 'test'])->middleware('throttle:10,1');
+        Route::get('/sms/account', [SmsSettingsController::class, 'account']);
 
         // --- Masters ---------------------------------------------------------
         Route::get('/karats', [KaratController::class, 'index']);

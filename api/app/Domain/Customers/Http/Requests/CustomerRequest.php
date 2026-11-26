@@ -4,6 +4,7 @@ namespace App\Domain\Customers\Http\Requests;
 
 use App\Domain\Customers\Models\Customer;
 use App\Domain\Customers\Services\SriLankanNic;
+use App\Domain\Sms\Enums\SmsType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -103,6 +104,7 @@ class CustomerRequest extends FormRequest
             'phone1' => $mobileRules,
             'phone2' => $phoneRules,
             'email' => ['nullable', 'email', 'max:150'],
+            'sms_language' => ['nullable', Rule::in(SmsType::LANGUAGES)],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
     }

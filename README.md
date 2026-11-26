@@ -27,6 +27,12 @@ Rebuild of `../sampath-old` as a Laravel 12 REST API + React SPA.
    npm run dev                  # http://localhost:5173 (proxies /api and /sanctum to :8010)
    ```
 
+## SMS (Notify.lk)
+- Fill the `NOTIFYLK_*` values in `api/.env`, then set up messages in the app under **SMS > SMS Settings**. Everything starts switched off.
+- Existing database: `php artisan migrate`, then `php artisan db:seed --class=SmsSeeder` and `php artisan db:seed --class=RolesAndPermissionsSeeder`.
+- Automatic reminders and queued bulk messages need the scheduler: a cron entry running `php artisan schedule:run` every minute (locally `php artisan schedule:work`).
+- Code is in `api/app/Domain/Sms` and `web/src/features/sms`.
+
 ## Signing in (local)
 - `admin` (super admin) — password is `SEED_ADMIN_PASSWORD` in `api/.env`.
 - Demo users for each role (local only) — `manager001`, `cashier001`, `cashier002`, `valuer001`, `accountant`, `auditor` — password is `SEED_DEMO_PASSWORD` in `api/.env`.

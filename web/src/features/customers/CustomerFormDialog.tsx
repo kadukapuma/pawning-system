@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, Dialog, Field, Input, Select, Textarea } from '@/components/ui'
+import { LANGUAGES } from '@/features/sms/shared'
 import { useApiMutation, useLookups } from '@/lib/hooks'
 import type { Customer } from '@/lib/types'
 import { decodeNic, nicError, normalizeNic } from './sriLankanNic'
@@ -19,6 +20,7 @@ type FormState = {
   phone1: string
   phone2: string
   email: string
+  sms_language: string
   driving_license: string
   passport: string
   other_identification: string
@@ -27,7 +29,7 @@ type FormState = {
 
 const empty: FormState = {
   title: 'Mr', first_name: '', middle_name: '', last_name: '', gender: '', nic: '', date_of_birth: '',
-  address_line1: '', address_line2: '', city: '', phone1: '', phone2: '', email: '',
+  address_line1: '', address_line2: '', city: '', phone1: '', phone2: '', email: '', sms_language: '',
   driving_license: '', passport: '', other_identification: '', notes: '',
 }
 
@@ -37,6 +39,7 @@ function fromCustomer(c: Customer): FormState {
     title: s(c.title), first_name: c.first_name, middle_name: s(c.middle_name), last_name: s(c.last_name),
     gender: s(c.gender), nic: c.nic, date_of_birth: s(c.date_of_birth), address_line1: c.address_line1,
     address_line2: s(c.address_line2), city: s(c.city), phone1: c.phone1, phone2: s(c.phone2), email: s(c.email),
+    sms_language: s(c.sms_language),
     driving_license: s(c.driving_license), passport: s(c.passport), other_identification: s(c.other_identification),
     notes: s(c.notes),
   }
@@ -196,6 +199,13 @@ export function CustomerFormDialog({
         </Field>
         <Field label="Email" className="sm:col-span-2" error={err.email}>
           <Input type="email" value={form.email} onChange={set('email')} />
+        </Field>
+
+        <Field label="SMS language" className="sm:col-span-2" error={err.sms_language}>
+          <Select value={form.sms_language} onChange={set('sms_language')}>
+            <option value="">Company default</option>
+            {LANGUAGES.map(([k, label]) => <option key={k} value={k}>{label}</option>)}
+          </Select>
         </Field>
 
         <Field label="Driving licence" className="sm:col-span-2" error={err.driving_license}>

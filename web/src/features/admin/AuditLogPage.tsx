@@ -5,7 +5,7 @@ import { Badge, Card, EmptyState, Input, PageHeader, Pagination, Select, Spinner
 import { api } from '@/lib/api'
 import type { AuditLog, Paginated } from '@/lib/types'
 
-const TYPES = ['customer', 'user', 'branch', 'company', 'karat', 'pawn_scheme', 'article_category', 'article_type', 'article_condition', 'bank', 'bank_branch', 'account']
+const TYPES = ['customer', 'user', 'branch', 'company', 'karat', 'pawn_scheme', 'article_category', 'article_type', 'article_condition', 'bank', 'bank_branch', 'account', 'sms_setting', 'sms_rule', 'sms_template']
 const EVENTS = ['created', 'updated', 'deleted', 'login', 'logout', 'status_changed', 'role_changed', 'password_reset']
 
 const eventTone = (e: string) =>
