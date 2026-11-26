@@ -38,6 +38,8 @@ it('creates a customer with a branch customer code and normalised NIC / phone', 
         ->assertCreated()
         ->assertJsonPath('data.code', 'C002000001')
         ->assertJsonPath('data.nic', '901234567V')
+        ->assertJsonPath('data.date_of_birth', '1990-05-02')
+        ->assertJsonPath('data.gender', 'male')
         ->assertJsonPath('data.phone1', '0771234567')
         ->assertJsonPath('data.full_name', 'Nimal Perera')
         ->assertJsonPath('data.status', 'active')
@@ -58,6 +60,40 @@ it('validates NIC format, phone and uniqueness', function () {
         ->assertStatus(422)
         ->assertJsonPath('errors.nic.0', 'A customer with this NIC already exists.');
 });
+
+it('decodes a modern female NIC with a leap-day birthday', function () {
+    $this->actingAs(userWithRole('cashier'))->withHeaders(spaHeaders())
+        ->postJson('/api/v1/customers', customerPayload(['nic' => '200056012345']))
+        ->assertCreated()
+        ->assertJsonPath('data.date_of_birth', '2000-02-29')
+        ->assertJsonPath('data.gender', 'female');
+});
+
+it('normalises Sri Lankan mobile and landline numbers in international format', function () {
+    $this->actingAs(userWithRole('cashier'))->withHeaders(spaHeaders())
+        ->postJson('/api/v1/customers', customerPayload(['phone1' => '+94 77 123 4567', 'phone2' => '+94 (11) 234-5678']))
+        ->assertCreated()
+        ->assertJsonPath('data.phone1', '0771234567')
+        ->assertJsonPath('data.phone2', '0112345678');
+});
+
+it('rejects a missing or invalid mobile and invalid alternate numbers', function (?string $mobile, string $other) {
+    $this->actingAs(userWithRole('cashier'))->withHeaders(spaHeaders())
+        ->postJson('/api/v1/customers', customerPayload(['phone1' => $mobile, 'phone2' => $other]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['phone1', 'phone2']);
+})->with([
+    [null, '---'],
+    ['0112345678', '0992345678'],
+    ['0771234567 ext', '+44 7700 900123'],
+]);
+
+it('rejects an NIC with an impossible encoded birth date', function (string $nic) {
+    $this->actingAs(userWithRole('cashier'))->withHeaders(spaHeaders())
+        ->postJson('/api/v1/customers', customerPayload(['nic' => $nic]))
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('nic');
+})->with(['900604567X', '199050012345', '199086712345', '999900112345']);
 
 it('searches customers by NIC, name and phone across branches', function () {
     $user = userWithRole('cashier');

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Button, Dialog, Field, Input, Select, Textarea } from '@/components/ui'
 import { useApiMutation, useLookups } from '@/lib/hooks'
 import type { Customer } from '@/lib/types'
+import { decodeNic, nicError, normalizeNic } from './sriLankanNic'
+import { mobileError, otherPhoneError, stripPhoneFormatting } from './sriLankanPhone'
 
 type FormState = {
   title: string
@@ -56,6 +58,8 @@ export function CustomerFormDialog({
 }) {
   const { data: lookups } = useLookups()
   const [form, setForm] = useState<FormState>(empty)
+  const [nicBlurred, setNicBlurred] = useState(false)
+  const [phoneTouched, setPhoneTouched] = useState({ phone1: false, phone2: false })
 
   const save = useApiMutation<Record<string, string | null>, Customer>({
     method: customer ? 'put' : 'post',
@@ -70,7 +74,10 @@ export function CustomerFormDialog({
 
   useEffect(() => {
     if (open) {
-      setForm(customer ? fromCustomer(customer) : { ...empty, nic: initialNic ?? '' })
+      const nic = normalizeNic(initialNic ?? '')
+      setForm(customer ? fromCustomer(customer) : { ...empty, nic, ...decodeNic(nic) })
+      setNicBlurred(false)
+      setPhoneTouched({ phone1: false, phone2: false })
       save.clearErrors()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,10 +85,48 @@ export function CustomerFormDialog({
 
   const set = (k: keyof FormState) => (e: { target: { value: string } }) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const err = save.fieldErrors
+  const nic = normalizeNic(form.nic)
+  const unchangedNic = !!customer && nic === customer.nic
+  const invalidNic = !nic || (!unchangedNic && !decodeNic(nic))
+  const nicFieldError = (nicBlurred && invalidNic ? (nic ? nicError : 'Enter the customer’s NIC.') : undefined) ?? err.nic
+  const phone1Error = customer?.phone1 === form.phone1 ? undefined : mobileError(form.phone1)
+  const phone2Error = customer?.phone2 === form.phone2 ? undefined : otherPhoneError(form.phone2)
+  const mobileFieldError = (phoneTouched.phone1 ? phone1Error : undefined) ?? err.phone1
+  const otherPhoneFieldError = (phoneTouched.phone2 ? phone2Error : undefined) ?? err.phone2
+
+  const touchPhone = (field: 'phone1' | 'phone2') => setPhoneTouched((current) => (
+    current[field] ? current : { ...current, [field]: true }
+  ))
+
+  const changePhone = (field: 'phone1' | 'phone2') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = field === 'phone1' ? stripPhoneFormatting(e.target.value) : e.target.value
+    if (field === 'phone1' && value.length > (value.startsWith('+') ? 12 : 10)) return
+
+    if (err[field]) save.clearErrors()
+    if (field === 'phone1') touchPhone(field)
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const changeNic = (value: string) => {
+    const normalized = normalizeNic(value)
+    if (normalized.length > 12) return
+
+    if (err.nic) save.clearErrors()
+    setForm((current) => {
+      if (normalized === normalizeNic(current.nic)) return { ...current, nic: normalized }
+
+      const details = customer && normalized === customer.nic ? fromCustomer(customer) : decodeNic(normalized)
+      return { ...current, nic: normalized, gender: details?.gender ?? '', date_of_birth: details?.date_of_birth ?? '' }
+    })
+  }
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    const body = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim() === '' ? null : v.trim()]))
+    setNicBlurred(true)
+    setPhoneTouched({ phone1: true, phone2: true })
+    if (invalidNic || phone1Error || phone2Error) return
+
+    const body = Object.fromEntries(Object.entries({ ...form, nic }).map(([k, v]) => [k, v.trim() === '' ? null : v.trim()]))
     save.mutate(body)
   }
 
@@ -91,7 +136,7 @@ export function CustomerFormDialog({
       onClose={onClose}
       size="lg"
       title={customer ? `Edit ${customer.code}` : 'New customer'}
-      description="NIC: 9 digits + V/X or 12 digits. Phone: 10 digits starting with 0."
+      description="NIC accepts 9 digits plus V or X, or 12 digits. Phone numbers accept local or +94 format."
       footer={
         <>
           <Button variant="secondary" type="button" onClick={onClose}>Cancel</Button>
@@ -118,8 +163,8 @@ export function CustomerFormDialog({
           <Input value={form.last_name} onChange={set('last_name')} />
         </Field>
 
-        <Field label="NIC" required className="sm:col-span-2" error={err.nic}>
-          <Input value={form.nic} onChange={set('nic')} aria-invalid={!!err.nic} className="uppercase" />
+        <Field label="NIC" required className="sm:col-span-2" error={nicFieldError}>
+          <Input value={form.nic} onChange={(e) => changeNic(e.target.value)} onBlur={() => setNicBlurred(true)} aria-invalid={!!nicFieldError} className="uppercase" />
         </Field>
         <Field label="Gender" className="sm:col-span-2" error={err.gender}>
           <Select value={form.gender} onChange={set('gender')}>
@@ -143,11 +188,11 @@ export function CustomerFormDialog({
           <Input value={form.city} onChange={set('city')} />
         </Field>
 
-        <Field label="Mobile" required className="sm:col-span-2" error={err.phone1}>
-          <Input value={form.phone1} onChange={set('phone1')} inputMode="tel" aria-invalid={!!err.phone1} />
+        <Field label="Mobile" required className="sm:col-span-2" error={mobileFieldError}>
+          <Input type="tel" value={form.phone1} onChange={changePhone('phone1')} onBlur={() => touchPhone('phone1')} aria-invalid={!!mobileFieldError} />
         </Field>
-        <Field label="Other phone" className="sm:col-span-2" error={err.phone2}>
-          <Input value={form.phone2} onChange={set('phone2')} inputMode="tel" />
+        <Field label="Other phone" className="sm:col-span-2" error={otherPhoneFieldError}>
+          <Input type="tel" value={form.phone2} onChange={changePhone('phone2')} onBlur={() => touchPhone('phone2')} aria-invalid={!!otherPhoneFieldError} />
         </Field>
         <Field label="Email" className="sm:col-span-2" error={err.email}>
           <Input type="email" value={form.email} onChange={set('email')} />
