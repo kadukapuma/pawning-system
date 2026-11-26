@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Badge, Card, Checkbox, EmptyState, Input, PageHeader, Pagination, Select, Spinner, Table, Td, Th } from '@/components/ui'
 import { api } from '@/lib/api'
 import { useDebounced } from '@/lib/hooks'
@@ -21,7 +21,8 @@ const TITLES: Record<Action | 'search' | 'blocked', [string, string]> = {
 
 export function TicketSearchPage({ mode = 'search' }: { mode?: Action | 'search' | 'blocked' }) {
   const navigate = useNavigate()
-  const [q, setQ] = useState('')
+  const [params] = useSearchParams()
+  const [q, setQ] = useState(params.get('q') ?? '')
   const [status, setStatus] = useState(mode === 'search' ? '' : 'active')
   const [overdue, setOverdue] = useState(false)
   const [page, setPage] = useState(1)

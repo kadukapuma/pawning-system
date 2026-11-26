@@ -19,7 +19,7 @@ export function BranchSwitcher() {
 
   if (user.branches.length <= 1) {
     return (
-      <span className="flex items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1 text-xs font-medium">
+      <span className="glass flex h-10 items-center gap-2 rounded-full px-4 text-xs font-medium">
         <Building2 className="size-3.5" />
         {currentBranch.code} · {currentBranch.name}
       </span>
@@ -27,7 +27,7 @@ export function BranchSwitcher() {
   }
 
   return (
-    <label className="flex items-center gap-1.5 rounded-md bg-secondary px-2 py-1 text-xs font-medium">
+    <label className="glass flex h-10 items-center gap-2 rounded-full px-4 text-xs font-medium">
       <Building2 className="size-3.5" />
       <span className="sr-only">Working branch</span>
       <select
@@ -70,7 +70,7 @@ export function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-secondary"
+        className="glass flex h-10 items-center gap-2 rounded-full py-1 pr-3 pl-1 transition hover:bg-popover"
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -85,7 +85,7 @@ export function UserMenu() {
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 mt-2 w-56 rounded-lg border bg-popover p-1 shadow-lg">
+        <div role="menu" className="absolute right-0 mt-2 w-56 rounded-2xl border border-[var(--glass-edge)] bg-popover p-1.5 shadow-xl">
           <div className="px-3 py-2 text-xs text-muted-foreground">
             Signed in as <span className="font-medium text-foreground">{user.username}</span>
           </div>
@@ -93,7 +93,7 @@ export function UserMenu() {
             role="menuitem"
             type="button"
             onClick={() => logout()}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary"
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm hover:bg-secondary"
           >
             <LogOut className="size-4" /> Sign out
           </button>

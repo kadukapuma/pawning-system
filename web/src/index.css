@@ -2,76 +2,86 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Design tokens (shadcn-compatible). Brand: deep teal + warm gold accent. */
+/*
+ * "Soft glass" theme: misty grey canvas, frosted white panels, sage-green
+ * accent with a soft glow, warm gold kept as the secondary (jewellery) accent.
+ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.985 0.002 247);
-  --foreground: oklch(0.21 0.02 255);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.02 255);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.02 255);
-  --primary: oklch(0.45 0.09 195);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.96 0.01 247);
-  --secondary-foreground: oklch(0.27 0.02 255);
-  --muted: oklch(0.96 0.01 247);
-  --muted-foreground: oklch(0.55 0.02 255);
-  --accent: oklch(0.82 0.13 85);
-  --accent-foreground: oklch(0.27 0.05 70);
-  --destructive: oklch(0.58 0.22 27);
-  --success: oklch(0.6 0.14 155);
-  --warning: oklch(0.75 0.15 70);
-  --border: oklch(0.92 0.01 247);
-  --input: oklch(0.92 0.01 247);
-  --ring: oklch(0.45 0.09 195);
-  --sidebar: oklch(0.24 0.04 220);
-  --sidebar-foreground: oklch(0.93 0.01 220);
-  --sidebar-muted: oklch(0.7 0.02 220);
-  --sidebar-active: oklch(0.33 0.06 200);
-  /* Chart series (validated categorical palette, slots 1–4) and chart chrome. */
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
+  --radius: 0.875rem;
+  --background: oklch(0.935 0.004 160);
+  --foreground: oklch(0.24 0.01 160);
+  --card: oklch(0.98 0.003 160 / 0.86);
+  --card-foreground: oklch(0.24 0.01 160);
+  --popover: oklch(0.99 0.002 160);
+  --popover-foreground: oklch(0.24 0.01 160);
+  --primary: oklch(0.5 0.07 158);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.915 0.006 160);
+  --secondary-foreground: oklch(0.3 0.01 160);
+  --muted: oklch(0.915 0.006 160);
+  --muted-foreground: oklch(0.55 0.01 160);
+  --accent: oklch(0.8 0.11 85);
+  --accent-foreground: oklch(0.3 0.05 70);
+  --destructive: oklch(0.58 0.19 27);
+  --success: oklch(0.6 0.12 155);
+  --warning: oklch(0.75 0.14 70);
+  --border: oklch(0.885 0.005 160);
+  --input: oklch(0.87 0.006 160);
+  --ring: oklch(0.6 0.1 158);
+  --glow: oklch(0.78 0.17 155);
+  --glass-edge: oklch(1 0 0 / 0.7);
+  --sidebar: oklch(0.98 0.003 160 / 0.7);
+  --sidebar-foreground: oklch(0.3 0.01 160);
+  --sidebar-muted: oklch(0.55 0.01 160);
+  --sidebar-active: oklch(0.9 0.025 158);
+  /* Chart series and chart chrome. */
+  --chart-1: #4d8a6c;
+  --chart-2: #c39a3e;
   --chart-3: #1baf7a;
   --chart-4: #eda100;
-  --chart-grid: #e6e5e0;
-  --chart-axis: #52514e;
+  --chart-grid: #dcdedb;
+  --chart-axis: #6b6e6a;
 }
 
 .dark {
-  --background: oklch(0.17 0.02 255);
-  --foreground: oklch(0.96 0.01 247);
-  --card: oklch(0.21 0.02 255);
-  --card-foreground: oklch(0.96 0.01 247);
-  --popover: oklch(0.21 0.02 255);
-  --popover-foreground: oklch(0.96 0.01 247);
-  --primary: oklch(0.68 0.1 195);
-  --primary-foreground: oklch(0.17 0.02 255);
-  --secondary: oklch(0.27 0.02 255);
-  --secondary-foreground: oklch(0.96 0.01 247);
-  --muted: oklch(0.27 0.02 255);
-  --muted-foreground: oklch(0.7 0.02 255);
-  --accent: oklch(0.78 0.12 85);
+  --background: oklch(0.18 0.006 160);
+  --foreground: oklch(0.95 0.004 160);
+  --card: oklch(0.23 0.006 160 / 0.86);
+  --card-foreground: oklch(0.95 0.004 160);
+  --popover: oklch(0.24 0.006 160);
+  --popover-foreground: oklch(0.95 0.004 160);
+  --primary: oklch(0.72 0.1 158);
+  --primary-foreground: oklch(0.18 0.01 160);
+  --secondary: oklch(0.28 0.006 160);
+  --secondary-foreground: oklch(0.95 0.004 160);
+  --muted: oklch(0.28 0.006 160);
+  --muted-foreground: oklch(0.7 0.01 160);
+  --accent: oklch(0.78 0.11 85);
   --accent-foreground: oklch(0.2 0.04 70);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.68 0.1 195);
-  --sidebar: oklch(0.14 0.02 240);
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
+  --destructive: oklch(0.65 0.18 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.72 0.1 158);
+  --glass-edge: oklch(1 0 0 / 0.06);
+  --sidebar: oklch(0.23 0.006 160 / 0.86);
+  --sidebar-foreground: oklch(0.92 0.004 160);
+  --sidebar-muted: oklch(0.68 0.01 160);
+  --sidebar-active: oklch(0.32 0.03 158);
+  --chart-1: #6fb08e;
+  --chart-2: #d4ae5a;
   --chart-3: #199e70;
   --chart-4: #c98500;
-  --chart-grid: #383835;
-  --chart-axis: #c3c2b7;
+  --chart-grid: #333632;
+  --chart-axis: #b5b8b3;
 }
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -92,10 +102,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-glow: var(--glow);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
   --color-sidebar-active: var(--sidebar-active);
+}
+
+/* Frosted panel: translucent fill, bright hairline edge, very soft shadow. */
+@utility glass {
+  background: var(--card);
+  backdrop-filter: blur(18px) saturate(1.15);
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    0 1px 2px oklch(0 0 0 / 0.04),
+    0 10px 30px -14px oklch(0.3 0.02 160 / 0.22);
 }
 
 @layer base {
@@ -105,5 +126,17 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "tnum" 1; /* tabular numbers for money columns */
+    background-image:
+      radial-gradient(70rem 40rem at 50% -15%, oklch(1 0 0 / 0.75), transparent 70%),
+      radial-gradient(40rem 30rem at 100% 110%, oklch(0.88 0.03 158 / 0.45), transparent 70%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image: none;
+  }
+  @media print {
+    body {
+      background: white;
+    }
   }
 }

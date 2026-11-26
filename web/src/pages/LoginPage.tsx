@@ -34,16 +34,16 @@ export function LoginPage() {
   })
 
   const inputClass =
-    'w-full rounded-md border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring aria-[invalid=true]:border-destructive'
+    'w-full rounded-xl border bg-popover/80 px-3 py-2.5 outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/15 aria-[invalid=true]:border-destructive'
 
   return (
-    <div className="grid min-h-screen place-items-center bg-sidebar p-4">
-      <form noValidate onSubmit={onSubmit} className="w-full max-w-sm space-y-4 rounded-2xl bg-card p-8 shadow-xl">
+    <div className="grid min-h-screen place-items-center p-4">
+      <form noValidate onSubmit={onSubmit} className="glass w-full max-w-sm space-y-4 rounded-3xl p-8">
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="grid size-12 place-items-center rounded-xl bg-accent text-accent-foreground">
+          <div className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_var(--primary)]">
             <Gem className="size-6" />
           </div>
-          <h1 className="text-xl font-semibold">Sampath Pawning</h1>
+          <h1 className="text-2xl font-light tracking-tight">Sampath Pawning</h1>
           <p className="text-sm text-muted-foreground">Sign in to continue</p>
         </div>
 
@@ -80,7 +80,7 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-[0_8px_20px_-8px_var(--primary)] hover:opacity-90 disabled:opacity-60"
         >
           {isSubmitting && <Loader2 className="size-4 animate-spin" />}
           Sign in

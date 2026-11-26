@@ -1,11 +1,16 @@
-import { ChevronDown, Gem, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, Gem, PanelLeftClose } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { cn } from '@/lib/utils'
+import { MobileNav, ModuleDock } from './Dock'
+import { NavLayoutContext, readSidebarPref, writeSidebarPref } from './navLayout'
 import { permissionForPath, visibleNavigation, type NavGroup } from './navigation'
 import { BranchSwitcher, UserMenu } from './UserMenu'
+
+const itemBase =
+  'flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-sidebar-foreground/80 transition hover:bg-sidebar-active/60 hover:text-sidebar-foreground'
 
 function SidebarGroup({ group }: { group: NavGroup }) {
   const location = useLocation()
@@ -18,40 +23,39 @@ function SidebarGroup({ group }: { group: NavGroup }) {
       <NavLink
         to={group.to}
         end
-        className={({ isActive: a }) =>
-          cn(
-            'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-active',
-            a && 'bg-sidebar-active text-white',
-          )
-        }
+        className={({ isActive: a }) => cn(itemBase, a && 'bg-sidebar-active font-medium text-sidebar-foreground')}
       >
-        <Icon className="size-4" />
-        {group.label}
+        {({ isActive: a }) => (
+          <>
+            <span className={cn('grid size-7 place-items-center rounded-lg', a ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_-4px_var(--primary)]' : 'bg-secondary/70')}>
+              <Icon className="size-3.5" />
+            </span>
+            {group.label}
+          </>
+        )}
       </NavLink>
     )
   }
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/90 hover:bg-sidebar-active"
-      >
-        <Icon className="size-4" />
+      <button type="button" onClick={() => setOpen((o) => !o)} className={cn(itemBase, 'w-full', isActive && 'font-medium text-sidebar-foreground')}>
+        <span className={cn('grid size-7 place-items-center rounded-lg', isActive ? 'bg-primary text-primary-foreground shadow-[0_4px_12px_-4px_var(--primary)]' : 'bg-secondary/70')}>
+          <Icon className="size-3.5" />
+        </span>
         <span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('size-3.5 text-sidebar-muted transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
-        <div className="mt-1 ml-7 space-y-0.5 border-l border-white/10 pl-3">
+        <div className="mt-0.5 mb-1 ml-[1.6rem] space-y-0.5 border-l border-border pl-3">
           {group.items?.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive: a }) =>
                 cn(
-                  'block rounded px-2 py-1.5 text-sm text-sidebar-muted hover:text-white',
-                  a && 'font-medium text-accent',
+                  'relative block rounded-lg px-2.5 py-1.5 text-[13px] text-sidebar-muted transition hover:text-sidebar-foreground',
+                  a && 'bg-sidebar-active/70 font-medium text-primary before:absolute before:top-1/2 before:-left-[13px] before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-glow',
                 )
               }
             >
@@ -72,55 +76,98 @@ export function AppLayout() {
   )
 }
 
+/**
+ * Desktop: sidebar, or — when the user hides it — a floating round-icon dock at
+ * the bottom. Phones/tablets: always the bottom tab bar + "More" sheet.
+ */
 function Shell() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const { can } = useAuth()
   const { pathname } = useLocation()
   const menu = visibleNavigation(can)
+  const [sidebar, setSidebar] = useState(readSidebarPref)
+  const nav = useMemo(
+    () => ({
+      sidebar,
+      toggleSidebar: () =>
+        setSidebar((s) => {
+          writeSidebarPref(!s)
+          return !s
+        }),
+    }),
+    [sidebar],
+  )
 
   return (
-    <div className="flex min-h-screen">
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto bg-sidebar px-3 py-4 transition-transform lg:translate-x-0',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+    <NavLayoutContext.Provider value={nav}>
+      <div className="flex min-h-screen">
+        {sidebar && (
+          <aside className="glass fixed inset-y-3 left-3 z-40 hidden w-64 flex-col rounded-2xl px-3 py-4 lg:flex">
+            <div className="mb-5 flex items-center gap-2.5 px-2">
+              <Brand />
+              <button
+                type="button"
+                onClick={nav.toggleSidebar}
+                aria-label="Hide sidebar"
+                title="Hide sidebar"
+                className="ml-auto rounded-full p-1.5 text-sidebar-muted transition hover:bg-secondary hover:text-sidebar-foreground"
+              >
+                <PanelLeftClose className="size-4" />
+              </button>
+            </div>
+            <nav className="-mr-1 flex-1 space-y-0.5 overflow-y-auto pr-1">
+              {menu.map((g) => (
+                <SidebarGroup key={g.label} group={g} />
+              ))}
+            </nav>
+          </aside>
         )}
-      >
-        <div className="mb-6 flex items-center gap-2 px-3">
-          <div className="grid size-9 place-items-center rounded-lg bg-accent text-accent-foreground">
-            <Gem className="size-5" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Sampath Pawning</p>
-            <p className="text-xs text-sidebar-muted">Gold loan management</p>
-          </div>
-          <button className="ml-auto text-white lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu">
-            <X className="size-5" />
-          </button>
-        </div>
-        <nav className="space-y-1">
-          {menu.map((g) => (
-            <SidebarGroup key={g.label} group={g} />
-          ))}
-        </nav>
-      </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-card/80 px-4 backdrop-blur">
-          <button className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
-            <Menu className="size-5" />
-          </button>
-          <BranchSwitcher />
-          <div className="ml-auto">
-            <UserMenu />
-          </div>
-        </header>
-        <main className="flex-1 p-4 md:p-6">
-          <RequireAuth permission={permissionForPath(pathname)}>
-            <Outlet />
-          </RequireAuth>
-        </main>
+        <div className={cn('flex min-w-0 flex-1 flex-col', sidebar ? 'lg:pl-[17.5rem]' : 'lg:pl-[4.75rem]')}>
+          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 px-4 md:px-6">
+            {/* Brand shows here whenever the sidebar isn't (always on mobile). */}
+            <div className={cn('flex items-center gap-2.5', sidebar && 'lg:hidden')}>
+              <Brand />
+            </div>
+            <span className="hidden sm:block">
+              <BranchSwitcher />
+            </span>
+            <div className="ml-auto">
+              <UserMenu />
+            </div>
+          </header>
+          <main className="flex-1 px-4 pb-28 md:px-6 lg:pb-6">
+            <RequireAuth permission={permissionForPath(pathname)}>
+              <Outlet />
+            </RequireAuth>
+          </main>
+        </div>
+
+        {!sidebar && (
+          <ModuleDock onShowSidebar={nav.toggleSidebar} className="fixed! top-1/2 left-3 z-30 hidden -translate-y-1/2 lg:block" />
+        )}
+        <MobileNav />
       </div>
-    </div>
+    </NavLayoutContext.Provider>
+  )
+}
+
+function Brand() {
+  return (
+    <>
+      <Logo />
+      <div className="leading-tight">
+        <p className="text-[15px] font-semibold tracking-tight">Sampath</p>
+        <p className="text-[11px] text-sidebar-muted">Pawning · Gold loans</p>
+      </div>
+    </>
+  )
+}
+
+/** Brand mark used in the sidebar, the top bar and on the login screen. */
+export function Logo({ className }: { className?: string }) {
+  return (
+    <span className={cn('grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_6px_16px_-6px_var(--primary)]', className)}>
+      <Gem className="size-[18px]" />
+    </span>
   )
 }

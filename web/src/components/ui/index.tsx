@@ -30,11 +30,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap transition disabled:opacity-60',
-        size === 'sm' ? 'h-8 px-3 text-xs' : 'h-9 px-4 text-sm',
-        variant === 'primary' && 'bg-primary text-primary-foreground hover:opacity-90',
+        'inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition active:scale-[0.98] disabled:opacity-60',
+        size === 'sm' ? 'h-8 px-3.5 text-xs' : 'h-10 px-5 text-sm',
+        variant === 'primary' && 'bg-primary text-primary-foreground shadow-[0_6px_16px_-6px_var(--primary)] hover:opacity-90',
         variant === 'accent' && 'bg-accent text-accent-foreground hover:opacity-90',
-        variant === 'secondary' && 'border bg-card hover:bg-secondary',
+        variant === 'secondary' && 'border border-[var(--glass-edge)] bg-card shadow-sm backdrop-blur hover:bg-popover',
         variant === 'ghost' && 'hover:bg-secondary',
         variant === 'danger' && 'bg-destructive text-white hover:opacity-90',
         className,
@@ -50,13 +50,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 /* ---------------------------------------------------------------- Fields */
 
 const fieldBase =
-  'w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60 aria-[invalid=true]:border-destructive'
+  'w-full rounded-lg border bg-popover/80 px-3 text-sm outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/15 disabled:opacity-60 aria-[invalid=true]:border-destructive'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...rest },
   ref,
 ) {
-  return <input ref={ref} className={cn(fieldBase, 'h-9', className)} {...rest} />
+  return <input ref={ref} className={cn(fieldBase, 'h-10', className)} {...rest} />
 })
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select(
@@ -64,7 +64,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
   ref,
 ) {
   return (
-    <select ref={ref} className={cn(fieldBase, 'h-9', className)} {...rest}>
+    <select ref={ref} className={cn(fieldBase, 'h-10', className)} {...rest}>
       {children}
     </select>
   )
@@ -197,7 +197,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="text-3xl font-light tracking-tight">{title}</h1>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -206,7 +206,7 @@ export function PageHeader({ title, description, actions }: { title: string; des
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('rounded-xl border bg-card shadow-sm', className)}>{children}</div>
+  return <div className={cn('glass rounded-2xl', className)}>{children}</div>
 }
 
 export function Badge({
@@ -256,14 +256,14 @@ export function Table({ children, className }: { children: ReactNode; className?
 }
 export function Th({ children, className }: { children?: ReactNode; className?: string }) {
   return (
-    <th className={cn('border-b bg-secondary/60 px-3 py-2 text-left text-xs font-semibold text-muted-foreground', className)}>
+    <th className={cn('border-b px-3 py-2.5 text-left text-[11px] font-medium tracking-wide text-muted-foreground uppercase', className)}>
       {children}
     </th>
   )
 }
 export function Td({ children, className, colSpan }: { children?: ReactNode; className?: string; colSpan?: number }) {
   return (
-    <td colSpan={colSpan} className={cn('border-b px-3 py-2 align-middle', className)}>
+    <td colSpan={colSpan} className={cn('border-b border-border/60 px-3 py-2.5 align-middle', className)}>
       {children}
     </td>
   )
@@ -298,13 +298,13 @@ export function Dialog({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 sm:items-center">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/25 p-4 backdrop-blur-sm sm:items-center">
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
         className={cn(
-          'w-full rounded-xl bg-card shadow-2xl',
+          'w-full rounded-2xl border border-[var(--glass-edge)] bg-popover shadow-2xl',
           size === 'sm' && 'max-w-md',
           size === 'md' && 'max-w-xl',
           size === 'lg' && 'max-w-3xl',
@@ -316,7 +316,7 @@ export function Dialog({
             <h2 className="text-lg font-semibold">{title}</h2>
             {description && <p className="text-sm text-muted-foreground">{description}</p>}
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded p-1 hover:bg-secondary">
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-1.5 hover:bg-secondary">
             <X className="size-4" />
           </button>
         </div>
