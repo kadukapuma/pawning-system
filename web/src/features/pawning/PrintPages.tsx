@@ -5,6 +5,9 @@ import { useParams } from 'react-router-dom'
 import { Button, Spinner } from '@/components/ui'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { api } from '@/lib/api'
+import { CustomPrint } from '@/features/print-design/components/custom-print'
+import { usePrintDesign, type PrintDesignState } from '@/features/print-design/lib/active-design'
+import { receiptDoc, ticketDoc } from '@/features/print-design/lib/data'
 import { useAutoPrint } from '@/lib/print'
 import { formatMoney } from '@/lib/utils'
 import { txnLabel, type PawnTicket, type TicketTxn } from './types'
@@ -15,17 +18,20 @@ type Company = { name: string; address: string | null; phone: string | null; ema
  * Plain A5 print layouts (browser print). Exact positioning for the old
  * pre-printed stationery can be added later; these print on blank paper.
  */
-function Sheet({ children, ready }: { children: ReactNode; ready: boolean }) {
-  useAutoPrint(ready)
+function Sheet({ children, ready, design }: { children: ReactNode; ready: boolean; design: PrintDesignState }) {
+  // Print only once the data is in and, with a Print Designer layout, once it is laid out.
+  useAutoPrint(ready && design.canPrint)
+  const custom = design.status === 'custom'
 
   return (
     <div className="min-h-screen bg-white text-black print:bg-white">
-      <style>{'@page { size: A5; margin: 10mm } @media print { .no-print { display: none } }'}</style>
+      {!custom && <style>{'@page { size: A5; margin: 10mm } @media print { .no-print { display: none } }'}</style>}
       <div className="no-print flex justify-end gap-2 border-b p-3">
         <Button onClick={() => window.print()}><Printer className="size-4" /> Print</Button>
         <Button variant="secondary" onClick={() => window.close()}>Close</Button>
       </div>
-      <div className="mx-auto max-w-[148mm] p-6 text-[12px] leading-snug">{ready ? children : <Spinner />}</div>
+      {/* A designed document positions itself on the paper; the standard layout gets the A5 column. */}
+      <div className={custom ? 'py-4 print:p-0' : 'mx-auto max-w-[148mm] p-6 text-[12px] leading-snug'}>{ready ? children : <Spinner />}</div>
     </div>
   )
 }
@@ -89,12 +95,13 @@ export function TicketPrintPage() {
   const ticket = useQuery({ queryKey: ['ticket', id], queryFn: async () => (await api.get<{ data: PawnTicket }>(`/api/v1/pawn-tickets/${id}`)).data.data })
   const t = ticket.data
   const v = t?.scheme_version
+  const design = usePrintDesign('pawn_ticket')
 
   return (
     <RequireAuth>
-      <Sheet ready={!!t && !!company.data}>
+      <Sheet ready={!!t && !!company.data} design={design}>
         {t && (
-          <>
+          <CustomPrint state={design} documents={() => [ticketDoc(t)]}>
             <Header company={company.data} branch={t.branch} title="PAWN TICKET" no={`Receipt ${t.receipt_no} · Stock ${t.stock_no}`} />
             <KV k="Customer" v={[t.customer?.title, t.customer?.full_name].filter(Boolean).join(' ')} />
             <KV k="NIC / Phone" v={`${t.customer?.nic} · ${t.customer?.phone1}`} />
@@ -107,7 +114,7 @@ export function TicketPrintPage() {
             <KV k="Loan amount" v={formatMoney(t.principal_original)} bold />
             {company.data?.receipt_footer && <p className="mt-3 text-[10px]">{company.data.receipt_footer}</p>}
             <Signatures labels={['Customer', 'Valuer', 'Authorised officer']} />
-          </>
+          </CustomPrint>
         )}
       </Sheet>
     </RequireAuth>
@@ -124,12 +131,13 @@ export function TransactionPrintPage() {
   const x = d?.transaction
   const t = d?.ticket
   const n = (v?: string) => Number(v ?? 0)
+  const design = usePrintDesign('pawn_receipt')
 
   return (
     <RequireAuth>
-      <Sheet ready={!!d}>
+      <Sheet ready={!!d} design={design}>
         {x && t && (
-          <>
+          <CustomPrint state={design} documents={() => [receiptDoc(x, t)]}>
             <Header company={d.company} branch={t.branch} title={`${txnLabel[x.type] ?? x.type} receipt`.toUpperCase()} no={`${x.txn_no} · Ticket ${t.receipt_no}`} />
             <KV k="Date" v={new Date(x.txn_at).toLocaleString()} />
             <KV k="Customer" v={`${t.customer?.full_name} (${t.customer?.nic})`} />
@@ -152,7 +160,7 @@ export function TransactionPrintPage() {
             {x.remarks && <p className="text-[11px]">Remarks: {x.remarks}</p>}
             <p className="mt-2 text-[10px]">Cashier: {x.creator?.name}</p>
             <Signatures labels={['Customer', 'Cashier']} />
-          </>
+          </CustomPrint>
         )}
       </Sheet>
     </RequireAuth>

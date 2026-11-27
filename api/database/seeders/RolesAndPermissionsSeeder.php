@@ -32,7 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'sms.view', 'sms.send', 'sms.bulk', 'sms.settings',
         // Masters & admin
         'masters.manage', 'schemes.manage', 'karat_rates.manage',
-        'users.manage', 'branches.manage', 'audit.view',
+        'users.manage', 'branches.manage', 'audit.view', 'print_designs.manage',
     ];
 
     public function run(): void

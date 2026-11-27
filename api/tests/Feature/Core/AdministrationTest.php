@@ -84,7 +84,7 @@ it('lists roles with their permissions for user admins', function () {
         ->getJson('/api/v1/admin/roles')
         ->assertOk()
         ->assertJsonCount(7, 'data')
-        ->assertJsonCount(43, 'meta.all_permissions')
+        ->assertJsonCount(44, 'meta.all_permissions')
         ->assertJsonPath('data.6.name', 'valuer');
 });
 

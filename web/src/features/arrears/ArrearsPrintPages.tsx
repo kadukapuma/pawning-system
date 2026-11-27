@@ -4,6 +4,9 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { Button, Spinner } from '@/components/ui'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { api } from '@/lib/api'
+import { CustomPrint } from '@/features/print-design/components/custom-print'
+import { usePrintDesign } from '@/features/print-design/lib/active-design'
+import { letterDoc, transferDoc } from '@/features/print-design/lib/data'
 import { useAutoPrint } from '@/lib/print'
 import { formatMoney } from '@/lib/utils'
 
@@ -50,14 +53,19 @@ export function LettersPrintPage() {
     staleTime: Infinity,
     refetchOnMount: false,
   })
-  useAutoPrint(!!data.data)
+  const design = usePrintDesign('arrears_letter')
+  useAutoPrint(!!data.data && design.canPrint)
+  const letters = data.data?.letters ?? []
 
   return (
     <RequireAuth>
       <div className="min-h-screen bg-white text-black">
-        <style>{'@page { size: A5; margin: 12mm } @media print { .no-print { display: none } .letter { break-after: page } }'}</style>
+        {design.status !== 'custom' && <style>{'@page { size: A5; margin: 12mm } @media print { .no-print { display: none } .letter { break-after: page } }'}</style>}
         <Toolbar />
-        {!data.data ? <div className="p-6"><Spinner /></div> : data.data.letters.map((l) => (
+        {!data.data ? <div className="p-6"><Spinner /></div> : (
+          // With a Print Designer layout every letter prints as its own designed page.
+          <CustomPrint state={design} documents={() => letters.map(letterDoc)}>
+        {data.data.letters.map((l) => (
           <div key={l.id} className="letter mx-auto max-w-[148mm] p-6 text-[12px] leading-relaxed">
             <div className="mb-4 border-b-2 border-black pb-2 text-center">
               <p className="text-base font-bold uppercase">{data.data.company.name}</p>
@@ -89,6 +97,8 @@ export function LettersPrintPage() {
             <p className="mt-8">Branch Manager</p>
           </div>
         ))}
+          </CustomPrint>
+        )}
       </div>
     </RequireAuth>
   )
@@ -103,15 +113,17 @@ type BatchData = {
 export function TransferPrintPage() {
   const { id } = useParams()
   const data = useQuery({ queryKey: ['transfer-batch', id], queryFn: async () => (await api.get<{ data: BatchData }>(`/api/v1/stock-transfer-batches/${id}`)).data.data })
-  useAutoPrint(!!data.data)
+  const design = usePrintDesign('stock_transfer')
+  useAutoPrint(!!data.data && design.canPrint)
   const d = data.data
 
   return (
     <RequireAuth>
       <div className="min-h-screen bg-white text-black">
-        <style>{'@page { size: A4; margin: 12mm } @media print { .no-print { display: none } }'}</style>
+        {design.status !== 'custom' && <style>{'@page { size: A4; margin: 12mm } @media print { .no-print { display: none } }'}</style>}
         <Toolbar />
         {!d ? <div className="p-6"><Spinner /></div> : (
+          <CustomPrint state={design} documents={() => [transferDoc(d)]}>
           <div className="mx-auto max-w-[190mm] p-6 text-[12px]">
             <div className="mb-3 border-b-2 border-black pb-2 text-center">
               <p className="text-base font-bold uppercase">{d.company.name}</p>
@@ -138,6 +150,7 @@ export function TransferPrintPage() {
             </table>
             <div className="mt-12 flex justify-between text-center"><div className="w-48 border-t border-dotted border-black pt-1">Transferred by</div><div className="w-48 border-t border-dotted border-black pt-1">Checked by</div></div>
           </div>
+          </CustomPrint>
         )}
       </div>
     </RequireAuth>

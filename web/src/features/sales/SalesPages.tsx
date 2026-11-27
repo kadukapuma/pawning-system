@@ -12,6 +12,9 @@ import { useDebounced } from '@/lib/hooks'
 import type { Paginated } from '@/lib/types'
 import { formatMoney } from '@/lib/utils'
 import type { StockItem } from './InventoryPage'
+import { CustomPrint } from '@/features/print-design/components/custom-print'
+import { usePrintDesign } from '@/features/print-design/lib/active-design'
+import { invoiceDoc } from '@/features/print-design/lib/data'
 import { openPrintPreview, useAutoPrint } from '@/lib/print'
 
 type Invoice = {
@@ -228,18 +231,20 @@ type InvoiceDetail = {
 export function InvoicePrintPage() {
   const { id } = useParams()
   const data = useQuery({ queryKey: ['sale', id], queryFn: async () => (await api.get<{ data: InvoiceDetail }>(`/api/v1/sales/${id}`)).data.data })
-  useAutoPrint(!!data.data)
+  const design = usePrintDesign('sales_invoice')
+  useAutoPrint(!!data.data && design.canPrint)
   const d = data.data
 
   return (
     <RequireAuth>
       <div className="min-h-screen bg-white text-black">
-        <style>{'@page { size: A5; margin: 10mm } @media print { .no-print { display: none } }'}</style>
+        {design.status !== 'custom' && <style>{'@page { size: A5; margin: 10mm } @media print { .no-print { display: none } }'}</style>}
         <div className="no-print flex justify-end gap-2 border-b p-3">
           <Button onClick={() => window.print()}><Printer className="size-4" /> Print</Button>
           <Button variant="secondary" onClick={() => window.close()}>Close</Button>
         </div>
         {!d ? <div className="p-6"><Spinner /></div> : (
+          <CustomPrint state={design} documents={() => [invoiceDoc(d.invoice)]}>
           <div className="mx-auto max-w-[148mm] p-6 text-[12px]">
             <div className="mb-3 border-b-2 border-black pb-2 text-center">
               <p className="text-base font-bold uppercase">{d.company.name}</p>
@@ -271,6 +276,7 @@ export function InvoicePrintPage() {
             {d.company.receipt_footer && <p className="mt-4 text-[10px]">{d.company.receipt_footer}</p>}
             <p className="mt-8 text-[10px]">Cashier: {d.invoice.creator?.name}</p>
           </div>
+          </CustomPrint>
         )}
       </div>
     </RequireAuth>

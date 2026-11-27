@@ -105,6 +105,7 @@ export const navigation: NavGroup[] = [
       { label: 'Roles & Permissions', to: '/admin/roles', permission: 'users.manage' },
       { label: 'Branches', to: '/admin/branches', permission: 'branches.manage' },
       { label: 'Company', to: '/admin/company', permission: 'branches.manage' },
+      { label: 'Print Designer', to: '/admin/print-designer', permission: 'print_designs.manage' },
       { label: 'Audit Log', to: '/admin/audit', permission: 'audit.view' },
     ],
   },

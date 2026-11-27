@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuditLogPage } from '@/features/admin/AuditLogPage'
+import { PrintDesignerPage } from '@/features/print-design/PrintDesignerPage'
 import { CompanyPage } from '@/features/admin/CompanyPage'
 import { RolesPage } from '@/features/admin/RolesPage'
 import { UsersPage } from '@/features/admin/UsersPage'
@@ -32,6 +33,7 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { PlaceholderPage } from '@/pages/PlaceholderPage'
 import { RouteError } from '@/pages/RouteError'
+import { RequireAuth } from '@/features/auth/RequireAuth'
 
 // Permissions per path are enforced in AppLayout via navigation.ts (and by the API).
 const router = createBrowserRouter([
@@ -41,6 +43,16 @@ const router = createBrowserRouter([
   { path: '/print/letters', element: <LettersPrintPage /> },
   { path: '/print/transfer/:id', element: <TransferPrintPage /> },
   { path: '/print/invoice/:id', element: <InvoicePrintPage /> },
+  // Full-window workspace: outside AppLayout (no sidebar / top bar).
+  {
+    path: '/admin/print-designer',
+    errorElement: <RouteError />,
+    element: (
+      <RequireAuth permission="print_designs.manage">
+        <PrintDesignerPage />
+      </RequireAuth>
+    ),
+  },
   {
     path: '/',
     element: <AppLayout />,

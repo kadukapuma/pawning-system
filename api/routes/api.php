@@ -14,6 +14,7 @@ use App\Domain\Masters\Http\Controllers\KaratController;
 use App\Domain\Masters\Http\Controllers\LookupController;
 use App\Domain\Masters\Http\Controllers\PawnSchemeController;
 use App\Domain\Pawning\Http\Controllers\PawnTicketController;
+use App\Domain\Printing\Http\Controllers\PrintDesignController;
 use App\Domain\Reports\Http\Controllers\ReportController;
 use App\Domain\Sales\Http\Controllers\SalesController;
 use App\Domain\Sms\Http\Controllers\SmsController;
@@ -199,5 +200,12 @@ Route::prefix('v1')->group(function () {
         Route::put('/admin/company', [BranchAdminController::class, 'updateCompany']);
 
         Route::get('/admin/audit-logs', [AuditLogController::class, 'index']);
+
+        // Print Designer: print pages read the active design; managing needs print_designs.manage.
+        Route::get('/print-designs/{document}', [PrintDesignController::class, 'active']);
+        Route::get('/admin/print-designs', [PrintDesignController::class, 'index']);
+        Route::get('/admin/print-designs/{document}', [PrintDesignController::class, 'show']);
+        Route::put('/admin/print-designs/{document}', [PrintDesignController::class, 'update']);
+        Route::delete('/admin/print-designs/{document}', [PrintDesignController::class, 'destroy']);
     });
 });

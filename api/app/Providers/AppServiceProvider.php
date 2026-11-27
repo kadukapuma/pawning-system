@@ -62,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
             'sms_setting' => \App\Domain\Sms\Models\SmsSetting::class,
             'sms_rule' => \App\Domain\Sms\Models\SmsRule::class,
             'sms_template' => \App\Domain\Sms\Models\SmsTemplate::class,
+            'print_design' => \App\Domain\Printing\Models\PrintDesign::class,
             'role' => \Spatie\Permission\Models\Role::class,
         ]);
 
