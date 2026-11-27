@@ -39,6 +39,10 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        // Permissions that did not exist before this run (new in this release).
+        $existing = Permission::where('guard_name', 'web')->pluck('name')->all();
+        $added = array_values(array_diff(self::PERMISSIONS, $existing));
+
         foreach (self::PERMISSIONS as $name) {
             Permission::findOrCreate($name, 'web');
         }
@@ -84,8 +88,20 @@ class RolesAndPermissionsSeeder extends Seeder
             'auditor' => array_values(array_unique(array_merge($views, ['reports.all_branches', 'audit.view']))),
         ];
 
+        // Role permissions are editable on the Roles & permissions page, so re-running this seeder
+        // must not undo those edits: new roles get their defaults, existing roles only receive
+        // the defaults for permissions introduced since the last run. super_admin always has all.
         foreach ($roles as $roleName => $permissions) {
-            Role::findOrCreate($roleName, 'web')->syncPermissions($permissions);
+            $role = Role::where('name', $roleName)->where('guard_name', 'web')->first();
+            if ($role === null) {
+                Role::create(['name' => $roleName, 'guard_name' => 'web'])->syncPermissions($permissions);
+            } elseif ($roleName === 'super_admin') {
+                $role->syncPermissions($all);
+            } elseif ($new = array_values(array_intersect($permissions, $added))) {
+                $role->givePermissionTo($new);
+            }
         }
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

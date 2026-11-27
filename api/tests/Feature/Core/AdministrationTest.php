@@ -88,6 +88,53 @@ it('lists roles with their permissions for user admins', function () {
         ->assertJsonPath('data.6.name', 'valuer');
 });
 
+it('edits a role\'s permissions and audits the change', function () {
+    $admin = User::where('username', 'admin')->first();
+    $valuer = userWithRole('valuer');
+    expect($valuer->can('pawn.block'))->toBeFalse();
+
+    $this->actingAs($admin)->withHeaders(spaHeaders())
+        ->putJson('/api/v1/admin/roles/valuer', ['permissions' => ['customers.view', 'pawn.view', 'pawn.block']])
+        ->assertOk()
+        ->assertJsonPath('data.permissions', ['customers.view', 'pawn.block', 'pawn.view']);
+
+    expect($valuer->fresh()->can('pawn.block'))->toBeTrue()
+        ->and($valuer->fresh()->can('pawn.create'))->toBeFalse();
+
+    $log = DB::table('audit_logs')->where('auditable_type', 'role')->where('event', 'permissions_changed')->first();
+    expect(json_decode($log->new_values, true)['added'])->toBe(['pawn.block'])
+        ->and(json_decode($log->old_values, true)['removed'])->toBe(['inventory.view', 'pawn.create', 'pawn.stock_check']);
+});
+
+it('rejects unknown permissions and protected roles', function () {
+    $admin = User::where('username', 'admin')->first();
+    $req = fn () => $this->actingAs($admin)->withHeaders(spaHeaders());
+
+    $req()->putJson('/api/v1/admin/roles/cashier', ['permissions' => ['pawn.view', 'made.up']])
+        ->assertStatus(422)->assertJsonValidationErrors('permissions.1');
+    $req()->putJson('/api/v1/admin/roles/super_admin', ['permissions' => []])
+        ->assertStatus(422)->assertJsonValidationErrors('permissions');
+
+    $this->actingAs(userWithRole('cashier'))->withHeaders(spaHeaders())
+        ->putJson('/api/v1/admin/roles/valuer', ['permissions' => []])->assertForbidden();
+});
+
+it('does not let a user edit their own role', function () {
+    \Spatie\Permission\Models\Role::findByName('head_office')->givePermissionTo('users.manage');
+    $this->actingAs(userWithRole('head_office'))->withHeaders(spaHeaders())
+        ->putJson('/api/v1/admin/roles/head_office', ['permissions' => \Database\Seeders\RolesAndPermissionsSeeder::PERMISSIONS])
+        ->assertStatus(422)->assertJsonValidationErrors('permissions');
+});
+
+it('keeps edited role permissions when the seeder is re-run', function () {
+    $role = \Spatie\Permission\Models\Role::findByName('valuer');
+    $role->syncPermissions(['pawn.view', 'pawn.block']);
+
+    $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+
+    expect($role->fresh('permissions')->permissions->pluck('name')->sort()->values()->all())->toBe(['pawn.block', 'pawn.view']);
+});
+
 it('lets auditors read the audit log', function () {
     $this->actingAs(User::where('username', 'admin')->first())->withHeaders(spaHeaders())
         ->postJson('/api/v1/admin/branches', ['code' => '003', 'name' => 'Embilipitiya'])->assertCreated();

@@ -187,6 +187,7 @@ Route::prefix('v1')->group(function () {
 
         // --- Administration ---------------------------------------------------
         Route::get('/admin/roles', [UserAdminController::class, 'roles']);
+        Route::put('/admin/roles/{role:name}', [UserAdminController::class, 'updateRole']);
         Route::get('/admin/users', [UserAdminController::class, 'index']);
         Route::post('/admin/users', [UserAdminController::class, 'store']);
         Route::put('/admin/users/{user}', [UserAdminController::class, 'update']);

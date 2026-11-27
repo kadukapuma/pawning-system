@@ -2,8 +2,12 @@
 
 namespace App\Domain\Core\Http\Controllers;
 
+use App\Domain\Core\Models\AuditLog;
+use App\Domain\Core\Support\BranchContext;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,22 +34,79 @@ class UserAdminController extends Controller
         return JsonResource::collection($users->map(fn (User $u) => $this->present($u)));
     }
 
-    /** Roles with their permissions (read-only; roles are defined in RolesAndPermissionsSeeder). */
-    public function roles(): JsonResource
+    /** Roles with their permissions. Roles themselves are fixed (RolesAndPermissionsSeeder); their permissions are editable. */
+    public function roles(Request $request): JsonResource
     {
         $this->authorize('users.manage');
 
         $counts = DB::table('model_has_roles')->where('model_type', 'user')
             ->selectRaw('role_id, COUNT(*) AS c')->groupBy('role_id')->pluck('c', 'role_id');
+        $actor = $request->user();
 
         return JsonResource::collection(
-            \Spatie\Permission\Models\Role::with('permissions:id,name')->orderBy('name')->get()
-                ->map(fn ($r) => [
+            Role::with('permissions:id,name')->orderBy('name')->get()
+                ->map(fn (Role $r) => [
                     'name' => $r->name,
                     'users_count' => (int) ($counts[$r->id] ?? 0),
                     'permissions' => $r->permissions->pluck('name')->sort()->values(),
+                    'editable' => $this->roleEditBlocker($actor, $r) === null,
                 ])
-        )->additional(['meta' => ['all_permissions' => \Database\Seeders\RolesAndPermissionsSeeder::PERMISSIONS]]);
+        )->additional(['meta' => ['all_permissions' => RolesAndPermissionsSeeder::PERMISSIONS]]);
+    }
+
+    /** Replace a role's permission set. */
+    public function updateRole(Request $request, Role $role): JsonResource
+    {
+        $this->authorize('users.manage');
+        $data = $request->validate([
+            'permissions' => ['present', 'array'],
+            'permissions.*' => ['string', 'distinct', Rule::in(RolesAndPermissionsSeeder::PERMISSIONS)],
+        ]);
+
+        if ($reason = $this->roleEditBlocker($request->user(), $role)) {
+            throw ValidationException::withMessages(['permissions' => $reason]);
+        }
+
+        $old = $role->permissions()->pluck('name')->sort()->values()->all();
+        $new = collect($data['permissions'])->sort()->values()->all();
+
+        if ($old !== $new) {
+            DB::transaction(function () use ($role, $old, $new) {
+                $role->syncPermissions($new);
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'branch_id' => app(BranchContext::class)->id(),
+                    'auditable_type' => $role->getMorphClass(),
+                    'auditable_id' => $role->getKey(),
+                    'event' => 'permissions_changed',
+                    'old_values' => ['role' => $role->name, 'removed' => array_values(array_diff($old, $new))],
+                    'new_values' => ['role' => $role->name, 'added' => array_values(array_diff($new, $old))],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => substr((string) request()->userAgent(), 0, 255),
+                ]);
+            });
+        }
+
+        return new JsonResource([
+            'name' => $role->name,
+            'permissions' => $role->fresh('permissions')->permissions->pluck('name')->sort()->values(),
+        ]);
+    }
+
+    /**
+     * Why $actor may not edit $role, or null when allowed.
+     * super_admin always has everything; nobody edits their own role (no self-escalation or lock-out).
+     */
+    private function roleEditBlocker(User $actor, Role $role): ?string
+    {
+        if ($role->name === 'super_admin') {
+            return 'Super admin always has every permission.';
+        }
+        if ($actor->hasRole($role->name)) {
+            return 'You cannot change the permissions of your own role.';
+        }
+
+        return null;
     }
 
     public function store(Request $request): JsonResponse
