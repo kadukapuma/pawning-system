@@ -12,6 +12,7 @@ import { useDebounced } from '@/lib/hooks'
 import type { Paginated } from '@/lib/types'
 import { formatMoney } from '@/lib/utils'
 import type { StockItem } from './InventoryPage'
+import { openPrintPreview, useAutoPrint } from '@/lib/print'
 
 type Invoice = {
   id: number
@@ -74,7 +75,7 @@ export function SalesListPage() {
                   <Td className="text-xs">{Number(i.paid_cash) > 0 && `Cash ${Number(i.paid_cash).toLocaleString()} `}{Number(i.paid_card) > 0 && `Card ${Number(i.paid_card).toLocaleString()}`}</Td>
                   <Td><Badge tone={i.status === 'completed' ? 'success' : 'danger'}>{i.status}</Badge></Td>
                   <Td className="text-right whitespace-nowrap">
-                    <Button size="sm" variant="ghost" onClick={() => window.open(`/print/invoice/${i.id}`, '_blank')} aria-label="Print"><Printer className="size-4" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => openPrintPreview(`/print/invoice/${i.id}`, 'Sales invoice')} aria-label="Print"><Printer className="size-4" /></Button>
                     {i.status === 'completed' && can('sales.void') && <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setVoiding(i)} aria-label="Void"><Ban className="size-4" /></Button>}
                   </Td>
                 </tr>
@@ -155,7 +156,7 @@ export function NewSalePage() {
       toast.success(`Invoice ${r.data.data.invoice_no} saved`)
       qc.invalidateQueries({ queryKey: ['inventory'] })
       qc.invalidateQueries({ queryKey: ['sales'] })
-      window.open(`/print/invoice/${r.data.data.id}`, '_blank')
+      openPrintPreview(`/print/invoice/${r.data.data.id}`, 'Sales invoice')
       navigate('/sales')
     } catch (e) { toast.error(errorMessage(e)) } finally { setSaving(false) }
   }
@@ -227,7 +228,7 @@ type InvoiceDetail = {
 export function InvoicePrintPage() {
   const { id } = useParams()
   const data = useQuery({ queryKey: ['sale', id], queryFn: async () => (await api.get<{ data: InvoiceDetail }>(`/api/v1/sales/${id}`)).data.data })
-  useEffect(() => { if (data.data) setTimeout(() => window.print(), 300) }, [data.data])
+  useAutoPrint(!!data.data)
   const d = data.data
 
   return (

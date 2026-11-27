@@ -10,6 +10,7 @@ import { useApiMutation } from '@/lib/hooks'
 import type { Paginated } from '@/lib/types'
 import { cn, formatMoney } from '@/lib/utils'
 import { AccountSelect, isCashOrBank, today } from './shared'
+import { printCurrentPage } from '@/lib/print'
 
 /* ================================================================ Vouchers */
 
@@ -201,7 +202,7 @@ export function CashBookPage({ closing = false }: { closing?: boolean }) {
         actions={
           <>
             <Input type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} className="w-40" aria-label="Date" />
-            <Button variant="secondary" onClick={() => window.print()}><Printer className="size-4" /> Print</Button>
+            <Button variant="secondary" onClick={() => printCurrentPage('Cash book')}><Printer className="size-4" /> Print</Button>
             {!closed && can('day_closing.close') && <Button onClick={() => setCloseOpen(true)}><Lock className="size-4" /> Close day</Button>}
             {closed && can('journals.manage') && <Button variant="ghost" onClick={() => setReopen(true)}><Unlock className="size-4" /> Reopen</Button>}
           </>
@@ -329,7 +330,7 @@ export function StatementsPage() {
 
   return (
     <div>
-      <PageHeader title="Financial statements" description="Straight from the double-entry ledger." actions={<Button variant="secondary" onClick={() => window.print()}><Printer className="size-4" /> Print</Button>} />
+      <PageHeader title="Financial statements" description="Straight from the double-entry ledger." actions={<Button variant="secondary" onClick={() => printCurrentPage('Financial statements')}><Printer className="size-4" /> Print</Button>} />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {([['tb', 'Trial balance'], ['pl', 'Profit & loss'], ['bs', 'Balance sheet']] as const).map(([k, l]) => (
           <Button key={k} size="sm" variant={tab === k ? 'primary' : 'secondary'} onClick={() => setTab(k)}>{l}</Button>

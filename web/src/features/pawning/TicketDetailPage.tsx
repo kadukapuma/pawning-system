@@ -9,6 +9,7 @@ import { api, errorMessage } from '@/lib/api'
 import { formatMoney } from '@/lib/utils'
 import { PartPaymentDialog, ReasonDialog, RedemptionDialog, RenewalDialog } from './ActionDialogs'
 import { statusTone, txnLabel, type PawnTicket, type Statement } from './types'
+import { openPrintPreview } from '@/lib/print'
 
 type DialogName = 'part-payment' | 'renewal' | 'redeem' | 'block' | 'unblock' | 'cancel' | null
 
@@ -37,7 +38,7 @@ export function TicketDetailPage() {
   useEffect(() => {
     const action = params.get('action') as DialogName
     if (action && ticket.data?.status === 'active') setDialog(action)
-    if (params.get('print') === '1' && ticket.data) window.open(`/print/ticket/${ticket.data.id}`, '_blank')
+    if (params.get('print') === '1' && ticket.data) openPrintPreview(`/print/ticket/${ticket.data.id}`, `Pawn ticket ${ticket.data.receipt_no}`)
     if (action || params.get('print')) setParams({}, { replace: true })
   }, [ticket.data]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,7 +50,7 @@ export function TicketDetailPage() {
 
   const done = (txnId: number) => {
     setDialog(null)
-    window.open(`/print/transaction/${txnId}`, '_blank')
+    openPrintPreview(`/print/transaction/${txnId}`, 'Receipt')
   }
   const refresh = () => qc.invalidateQueries({ queryKey: ['ticket', id] })
   const sendSlip = async (txnId: number, txnNo: string) => {
@@ -87,7 +88,7 @@ export function TicketDetailPage() {
           {active && can('pawn.part_payment') && <Button onClick={() => setDialog('part-payment')}><Wallet className="size-4" /> Part payment</Button>}
           {active && can('pawn.renew') && <Button variant="secondary" disabled={t.is_blocked} onClick={() => setDialog('renewal')}><RefreshCw className="size-4" /> Renew</Button>}
           {active && can('pawn.redeem') && <Button variant="accent" disabled={t.is_blocked} onClick={() => setDialog('redeem')}><Banknote className="size-4" /> Redeem</Button>}
-          <Button variant="secondary" onClick={() => window.open(`/print/ticket/${t.id}`, '_blank')}><Printer className="size-4" /> Print ticket</Button>
+          <Button variant="secondary" onClick={() => openPrintPreview(`/print/ticket/${t.id}`, `Pawn ticket ${t.receipt_no}`)}><Printer className="size-4" /> Print ticket</Button>
           {active && can('pawn.block') && (
             t.is_blocked
               ? <Button variant="ghost" onClick={() => setDialog('unblock')}><Unlock className="size-4" /> Unblock</Button>
@@ -184,7 +185,7 @@ export function TicketDetailPage() {
                 <Td className="text-xs">{x.created_by}</Td>
                 <Td className="whitespace-nowrap">
                   {x.type !== 'rounding' && (
-                    <Button size="sm" variant="ghost" onClick={() => window.open(`/print/transaction/${x.id}`, '_blank')} aria-label="Print receipt"><Printer className="size-3.5" /></Button>
+                    <Button size="sm" variant="ghost" onClick={() => openPrintPreview(`/print/transaction/${x.id}`, 'Receipt')} aria-label="Print receipt"><Printer className="size-3.5" /></Button>
                   )}
                   {can('sms.send') && SMS_SLIP_TYPES.includes(x.type) && (
                     <Button size="sm" variant="ghost" onClick={() => sendSlip(x.id, x.txn_no)} aria-label="Send SMS slip" title="Send SMS slip"><MessageSquare className="size-3.5" /></Button>

@@ -7,6 +7,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { api, errorMessage } from '@/lib/api'
 import { cn, formatMoney } from '@/lib/utils'
 import { reportSkipped, SelectAll, TicketCells, useSelection, type ArrearsRow, type Skipped, type TicketSummary } from './shared'
+import { openPrintPreview } from '@/lib/print'
 
 type DueRow = ArrearsRow & { due_date: string; printed: Record<string, string> }
 type IssuedRow = { id: number; letter_no: number; issued_at: string; due_date: string; postage_charge: string; reprint_count: number; issued_by: string | null; current_cycle: boolean; ticket: TicketSummary }
@@ -42,7 +43,7 @@ export function ArrearsLettersPage() {
       reportSkipped(r.data.data.skipped)
       if (r.data.data.letter_ids.length) {
         toast.success(`${r.data.data.letter_ids.length} letter(s) issued`)
-        window.open(`/print/letters?ids=${r.data.data.letter_ids.join(',')}`, '_blank')
+        openPrintPreview(`/print/letters?ids=${r.data.data.letter_ids.join(',')}`, 'Arrears letters')
       }
       sel.clear()
       qc.invalidateQueries({ queryKey: ['letters-due'] })
@@ -71,7 +72,7 @@ export function ArrearsLettersPage() {
               </Button>
             )
           ) : (
-            <Button variant="secondary" disabled={sel.selected.size === 0} onClick={() => window.open(`/print/letters?ids=${sel.ids().join(',')}&reprint=1`, '_blank')}>
+            <Button variant="secondary" disabled={sel.selected.size === 0} onClick={() => openPrintPreview(`/print/letters?ids=${sel.ids().join(',')}&reprint=1`, 'Arrears letters (reprint)')}>
               <Printer className="size-4" /> Reprint selected
             </Button>
           )

@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { Printer } from 'lucide-react'
-import { useEffect, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Spinner } from '@/components/ui'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { api } from '@/lib/api'
+import { useAutoPrint } from '@/lib/print'
 import { formatMoney } from '@/lib/utils'
 import { txnLabel, type PawnTicket, type TicketTxn } from './types'
 
@@ -15,9 +16,7 @@ type Company = { name: string; address: string | null; phone: string | null; ema
  * pre-printed stationery can be added later; these print on blank paper.
  */
 function Sheet({ children, ready }: { children: ReactNode; ready: boolean }) {
-  useEffect(() => {
-    if (ready) setTimeout(() => window.print(), 300)
-  }, [ready])
+  useAutoPrint(ready)
 
   return (
     <div className="min-h-screen bg-white text-black print:bg-white">

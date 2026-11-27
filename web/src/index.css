@@ -150,4 +150,8 @@
       background: white;
     }
   }
+  /* Inside the print preview popup the popup has its own Print/Close buttons. */
+  .embedded .no-print {
+    display: none !important; /* beats utilities such as `flex` on the toolbar */
+  }
 }

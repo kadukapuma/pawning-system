@@ -37,6 +37,8 @@ export function writeThemePref(p: ThemePref) {
 
 export function applyTheme(theme: ResolvedTheme) {
   const root = document.documentElement
+  // Pages shown inside the print preview always render as paper (light).
+  if (root.classList.contains('embedded')) theme = 'light'
   root.classList.toggle('dark', theme === 'dark')
   root.style.colorScheme = theme // native controls, scrollbars, <select> popups
 }

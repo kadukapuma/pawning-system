@@ -8,6 +8,7 @@ import { ReasonDialog } from '@/features/pawning/ActionDialogs'
 import { api, errorMessage } from '@/lib/api'
 import { formatMoney } from '@/lib/utils'
 import { reportSkipped, SelectAll, TicketCells, useSelection, type ArrearsRow, type Skipped, type TicketSummary } from './shared'
+import { openPrintPreview } from '@/lib/print'
 
 /* ================================================================ Reminders */
 
@@ -253,7 +254,7 @@ export function TransferToStockPage() {
     try {
       const r = await api.post<{ data: { id: number } }>('/api/v1/forfeit/transfer', { forfeiture_ids: sel.ids() })
       toast.success('Articles moved to sale stock')
-      window.open(`/print/transfer/${r.data.data.id}`, '_blank')
+      openPrintPreview(`/print/transfer/${r.data.data.id}`, 'Stock transfer')
       sel.clear()
       qc.invalidateQueries({ queryKey: ['forfeit-awaiting'] })
     } catch (e) { toast.error(errorMessage(e)) } finally { setBusy(false) }

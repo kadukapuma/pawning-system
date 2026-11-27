@@ -7,6 +7,7 @@ import { Button, Card, EmptyState, Input, PageHeader, Spinner, Table, Td, Th } f
 import { useAuth } from '@/features/auth/AuthProvider'
 import { api, errorMessage } from '@/lib/api'
 import { cn, formatMoney } from '@/lib/utils'
+import { printCurrentPage } from '@/lib/print'
 
 type Column = { key: string; label: string; type: 'text' | 'date' | 'money' | 'weight' | 'int' }
 type Report = { report: string; title: string; from: string; to: string; columns: Column[]; rows: Record<string, unknown>[]; totals: Record<string, string | number> }
@@ -83,7 +84,7 @@ export function ReportsPage() {
                     <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="size-4" checked={all} onChange={(e) => setAll(e.target.checked)} /> All branches</label>
                   )}
                   <Button variant="secondary" loading={downloading} disabled={!r} onClick={download}><Download className="size-4" /> Excel</Button>
-                  <Button variant="secondary" disabled={!r} onClick={() => window.print()}><Printer className="size-4" /> Print / PDF</Button>
+                  <Button variant="secondary" disabled={!r} onClick={() => printCurrentPage('Report')}><Printer className="size-4" /> Print / PDF</Button>
                 </div>
               }
             />

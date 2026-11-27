@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Printer } from 'lucide-react'
-import { useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Button, Spinner } from '@/components/ui'
 import { RequireAuth } from '@/features/auth/RequireAuth'
 import { api } from '@/lib/api'
+import { useAutoPrint } from '@/lib/print'
 import { formatMoney } from '@/lib/utils'
 
 type Company = { name: string; address: string | null; phone: string | null }
@@ -50,7 +50,7 @@ export function LettersPrintPage() {
     staleTime: Infinity,
     refetchOnMount: false,
   })
-  useEffect(() => { if (data.data) setTimeout(() => window.print(), 300) }, [data.data])
+  useAutoPrint(!!data.data)
 
   return (
     <RequireAuth>
@@ -103,7 +103,7 @@ type BatchData = {
 export function TransferPrintPage() {
   const { id } = useParams()
   const data = useQuery({ queryKey: ['transfer-batch', id], queryFn: async () => (await api.get<{ data: BatchData }>(`/api/v1/stock-transfer-batches/${id}`)).data.data })
-  useEffect(() => { if (data.data) setTimeout(() => window.print(), 300) }, [data.data])
+  useAutoPrint(!!data.data)
   const d = data.data
 
   return (
