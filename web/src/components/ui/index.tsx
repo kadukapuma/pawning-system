@@ -1,6 +1,9 @@
 import { Info, Loader2, X } from 'lucide-react'
 import {
+  Children,
   forwardRef,
+  Fragment,
+  isValidElement,
   useEffect,
   useId,
   useRef,
@@ -8,10 +11,12 @@ import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
-  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react'
 import { cn } from '@/lib/utils'
+import { Picker, type PickerOption } from './Picker'
+
+export { Picker, type PickerOption } from './Picker'
 
 /* ---------------------------------------------------------------- Button */
 
@@ -59,16 +64,72 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   return <input ref={ref} className={cn(fieldBase, 'h-10', className)} {...rest} />
 })
 
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select(
-  { className, children, ...rest },
-  ref,
-) {
+/** Text content of option children such as `{b.code} · {b.name}`. */
+function textOf(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(textOf).join('')
+  if (isValidElement<{ children?: ReactNode }>(node)) return textOf(node.props.children)
+  return ''
+}
+
+/** Flattens <option> children (through fragments and arrays) into picker options. */
+function optionsFrom(children: ReactNode): PickerOption[] {
+  const out: PickerOption[] = []
+  Children.forEach(children, (child) => {
+    if (!isValidElement<{ value?: string | number; children?: ReactNode; disabled?: boolean }>(child)) return
+    if (child.type === Fragment) {
+      out.push(...optionsFrom(child.props.children))
+      return
+    }
+    if (child.type !== 'option') return
+    const label = textOf(child.props.children)
+    // Like a native <option>, a missing value falls back to the text.
+    out.push({ value: child.props.value != null ? String(child.props.value) : label, label, disabled: child.props.disabled })
+  })
+  return out
+}
+
+type SelectProps = {
+  value?: string | number
+  onChange?: (e: { target: { value: string; name?: string }; currentTarget: { value: string; name?: string } }) => void
+  disabled?: boolean
+  className?: string
+  id?: string
+  name?: string
+  title?: string
+  children?: ReactNode
+  'aria-label'?: string
+  'aria-invalid'?: boolean | 'true' | 'false'
+}
+
+/**
+ * Drop-in replacement for a native <select>: same `value` / `onChange(e)` / <option> children,
+ * but opens the searchable, paginated Picker popup. Use <Picker> directly for new code.
+ */
+export function Select({ value, onChange, disabled, className, id, name, title, children, 'aria-label': ariaLabel, 'aria-invalid': ariaInvalid }: SelectProps) {
+  const options = optionsFrom(children)
+  const current = value == null ? '' : String(value)
   return (
-    <select ref={ref} className={cn(fieldBase, 'h-10', className)} {...rest}>
-      {children}
-    </select>
+    <Picker
+      options={options}
+      // A native select with no matching option shows its first option.
+      value={options.some((o) => o.value === current) ? current : (options[0]?.value ?? '')}
+      onChange={(v) => {
+        const target = { value: v, name }
+        onChange?.({ target, currentTarget: target })
+      }}
+      placeholder={options[0]?.label}
+      disabled={disabled}
+      invalid={ariaInvalid === true || ariaInvalid === 'true'}
+      id={id}
+      name={name}
+      title={title}
+      aria-label={ariaLabel}
+      className={className}
+    />
   )
-})
+}
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(function Textarea(
   { className, ...rest },

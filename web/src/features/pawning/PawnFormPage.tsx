@@ -1,8 +1,8 @@
-import { Plus, Trash2 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Check, Circle, Gem, Plus, Scale, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { Badge, Button, Card, Field, InfoTip, Input, PageHeader, Select, Spinner, Textarea } from '@/components/ui'
+import { Badge, Button, Card, InfoTip, Input, PageHeader, Select, Spinner, Textarea } from '@/components/ui'
 import { api, errorMessage } from '@/lib/api'
 import { useDebounced, useLookups } from '@/lib/hooks'
 import type { Customer } from '@/lib/types'
@@ -44,6 +44,55 @@ function toItem(r: Row) {
     density_reading: r.density_reading === '' ? null : r.density_reading,
   }
 }
+
+/* ================================================================ layout bits */
+
+/** Numbered form section; the number turns into a tick once the step is complete. */
+function Step({ n, title, done, action, children }: { n: number; title: string; done?: boolean; action?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-3">
+        <span
+          className={cn(
+            'grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold',
+            done ? 'bg-primary text-primary-foreground' : 'border border-border bg-popover text-muted-foreground',
+          )}
+        >
+          {done ? <Check className="size-3.5" /> : n}
+        </span>
+        <h2 className="text-[15px] font-medium tracking-tight">{title}</h2>
+        {action && <div className="ml-auto">{action}</div>}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+/** Compact label + control used inside article cards. */
+function Mini({ label, required, error, tip, className, children }: { label: string; required?: boolean; error?: string; tip?: ReactNode; className?: string; children: ReactNode }) {
+  return (
+    <div className={cn('min-w-0 space-y-1', className)}>
+      <span className="flex items-center gap-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+        {label}
+        {required && <span className="text-destructive">*</span>}
+        {tip}
+      </span>
+      {children}
+      {error && <span className="block text-xs text-destructive">{error}</span>}
+    </div>
+  )
+}
+
+function SummaryRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-right tabular-nums">{children}</span>
+    </div>
+  )
+}
+
+/* ================================================================ page */
 
 /**
  * New pawn (mode "new") or opening ticket carried over from the old system
@@ -104,7 +153,9 @@ export function PawnFormPage({ mode }: { mode: 'new' | 'opening' }) {
   const typesFor = (categoryId: string) => (lookups?.article_types ?? []).filter((t) => String(t.category_id) === categoryId)
 
   const overValue = quote && amount && Number(amount) > Number(quote.assessed_value)
-  const canSubmit = customer && complete.length === rows.length && Number(amount) > 0 && Number(months) > 0 && (!opening || (pawnDate && legacyNo))
+  const articlesDone = complete.length === rows.length
+  const loanDone = Number(amount) > 0 && Number(months) > 0 && !overValue && (!opening || (!!pawnDate && !!legacyNo))
+  const canSubmit = customer && articlesDone && Number(amount) > 0 && Number(months) > 0 && (!opening || (pawnDate && legacyNo))
 
   const submit = async () => {
     setSaving(true)
@@ -130,8 +181,19 @@ export function PawnFormPage({ mode }: { mode: 'new' | 'opening' }) {
     return Array.from({ length: Math.max(0, max) }, (_, i) => i + 1)
   }, [quote, opening])
 
+  // Share of the article value being lent (display only; the API enforces the limit).
+  const ltv = quote && Number(quote.assessed_value) > 0 && Number(amount) > 0 ? Math.min(100, (Number(amount) / Number(quote.assessed_value)) * 100) : 0
+
+  const checklist: { label: string; ok: boolean }[] = [
+    { label: 'Customer selected', ok: !!customer },
+    { label: 'All articles complete', ok: articlesDone },
+    { label: opening ? 'Outstanding capital entered' : 'Loan amount entered', ok: Number(amount) > 0 && !overValue },
+    { label: 'Term chosen', ok: Number(months) > 0 },
+    ...(opening ? [{ label: 'Pawn date & old receipt no.', ok: !!pawnDate && !!legacyNo }] : []),
+  ]
+
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-[1500px]">
       <PageHeader
         title={opening ? 'Opening ticket' : 'New pawn'}
         description={
@@ -141,181 +203,293 @@ export function PawnFormPage({ mode }: { mode: 'new' | 'opening' }) {
         }
       />
 
-      <section className="space-y-2">
-        <h2 className="text-sm font-semibold">1. Customer</h2>
-        <CustomerPicker value={customer} onChange={setCustomer} initialCustomerId={params.get('customer')} />
-        {errors.customer_id && <p className="text-sm text-destructive">{errors.customer_id}</p>}
-      </section>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {/* ---------------------------------------------------------------- form */}
+        <div className="min-w-0 space-y-7">
+          <Step n={1} title="Customer" done={!!customer}>
+            <CustomerPicker value={customer} onChange={setCustomer} initialCustomerId={params.get('customer')} />
+            {errors.customer_id && <p className="text-sm text-destructive">{errors.customer_id}</p>}
+          </Step>
 
-      <section className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">2. Articles</h2>
-          <Button size="sm" variant="secondary" onClick={() => setRows((r) => [...r, newRow()])}><Plus className="size-4" /> Add article</Button>
-        </div>
-        <Card className="overflow-x-auto">
-          <table className="w-full min-w-[1000px] text-sm">
-            <thead>
-              <tr className="bg-secondary/60 text-left text-xs text-muted-foreground">
-                <th className="px-2 py-2">Category *</th><th className="px-2">Article</th><th className="px-2">Karat *</th>
-                <th className="px-2">Condition</th><th className="w-16 px-2">Qty</th><th className="w-24 px-2">Gross g *</th>
-                <th className="w-24 px-2">Net g *</th>
-                <th className="w-24 px-2">
-                  <span className="inline-flex items-center gap-1">
-                    Density
-                    <InfoTip label="Density meter reading">
-                      The reading shown on the density meter when this item is tested. Optional — it is saved on the ticket for the record and does not change the value.
-                    </InfoTip>
-                  </span>
-                </th>
-                <th className="px-2 text-right">Value</th><th />
-              </tr>
-            </thead>
-            <tbody>
+          <Step
+            n={2}
+            title={`Articles${rows.length > 1 ? ` (${rows.length})` : ''}`}
+            done={articlesDone}
+            action={
+              <Button size="sm" variant="secondary" onClick={() => setRows((r) => [...r, newRow()])}>
+                <Plus className="size-4" /> Add article
+              </Button>
+            }
+          >
+            <div className="space-y-3">
               {rows.map((r, idx) => {
                 const qIdx = complete.indexOf(r)
                 const value = qIdx >= 0 ? quote?.items[qIdx]?.assessed_value : undefined
                 const err = (f: string) => errors[`items.${idx}.${f}`]
+                const netOverGross = Number(r.net_weight) > 0 && Number(r.gross_weight) > 0 && Number(r.net_weight) > Number(r.gross_weight)
+                const isDone = !!rowComplete(r)
                 return (
-                  <tr key={r.key} className="border-b align-top">
-                    <td className="p-1.5">
-                      <Select value={r.category_id} onChange={(e) => update(r.key, { category_id: e.target.value, article_type_id: '' })} aria-invalid={!!err('category_id')}>
-                        <option value="">Select…</option>
-                        {lookups?.article_categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </Select>
-                    </td>
-                    <td className="p-1.5">
-                      <Select value={r.article_type_id} onChange={(e) => update(r.key, { article_type_id: e.target.value })} disabled={!r.category_id}>
-                        <option value="">—</option>
-                        {typesFor(r.category_id).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                      </Select>
-                    </td>
-                    <td className="p-1.5">
-                      <Select value={r.karat_id} onChange={(e) => update(r.key, { karat_id: e.target.value })} aria-invalid={!!err('karat_id')}>
-                        <option value="">Select…</option>
-                        {lookups?.karats.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
-                      </Select>
-                      {err('karat_id') && <span className="text-xs text-destructive">{err('karat_id')}</span>}
-                    </td>
-                    <td className="p-1.5">
-                      <Select value={r.condition_id} onChange={(e) => update(r.key, { condition_id: e.target.value })}>
-                        <option value="">—</option>
-                        {lookups?.article_conditions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </Select>
-                    </td>
-                    <td className="p-1.5"><Input type="number" min={1} value={r.quantity} onChange={(e) => update(r.key, { quantity: e.target.value })} /></td>
-                    <td className="p-1.5"><Input type="number" min={0} step="0.001" value={r.gross_weight} onChange={(e) => update(r.key, { gross_weight: e.target.value })} /></td>
-                    <td className="p-1.5">
-                      <Input type="number" min={0} step="0.001" value={r.net_weight} onChange={(e) => update(r.key, { net_weight: e.target.value })} aria-invalid={!!err('net_weight')} />
-                      {err('net_weight') && <span className="text-xs text-destructive">{err('net_weight')}</span>}
-                    </td>
-                    <td className="p-1.5">
-                      <Input
-                        type="number"
-                        min={0}
-                        step="0.001"
-                        inputMode="decimal"
-                        placeholder="—"
-                        aria-label="Density meter reading"
-                        value={r.density_reading}
-                        onChange={(e) => update(r.key, { density_reading: e.target.value })}
-                        aria-invalid={!!err('density_reading')}
-                      />
-                      {err('density_reading') && <span className="text-xs text-destructive">{err('density_reading')}</span>}
-                    </td>
-                    <td className="p-1.5 pt-3.5 text-right tabular-nums">{value ? formatMoney(value) : '—'}</td>
-                    <td className="p-1.5">
-                      <Button size="sm" variant="ghost" onClick={() => setRows((rs) => (rs.length > 1 ? rs.filter((x) => x.key !== r.key) : rs))} aria-label="Remove article" disabled={rows.length === 1}>
+                  <Card key={r.key} className="p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <span className={cn('grid size-6 place-items-center rounded-md text-[11px] font-semibold', isDone ? 'bg-primary/15 text-primary' : 'bg-secondary text-muted-foreground')}>
+                        {idx + 1}
+                      </span>
+                      <span className="min-w-0 truncate text-sm font-medium">
+                        {lookups?.article_categories.find((c) => String(c.id) === r.category_id)?.name ?? 'New article'}
+                        {r.article_type_id && (
+                          <span className="font-normal text-muted-foreground"> · {typesFor(r.category_id).find((t) => String(t.id) === r.article_type_id)?.name}</span>
+                        )}
+                      </span>
+                      <span className="ml-auto text-sm whitespace-nowrap tabular-nums">
+                        {value ? (
+                          <span className="rounded-full bg-primary/10 px-2.5 py-1 font-medium text-primary">{formatMoney(value)}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{isDone ? 'Valuing…' : 'Not valued yet'}</span>
+                        )}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="size-8 px-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => setRows((rs) => (rs.length > 1 ? rs.filter((x) => x.key !== r.key) : rs))}
+                        aria-label="Remove article"
+                        title="Remove article"
+                        disabled={rows.length === 1}
+                      >
                         <Trash2 className="size-4" />
                       </Button>
-                    </td>
-                  </tr>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                      <Mini label="Category" required error={err('category_id')}>
+                        <Select value={r.category_id} onChange={(e) => update(r.key, { category_id: e.target.value, article_type_id: '' })} aria-invalid={!!err('category_id')}>
+                          <option value="">Select…</option>
+                          {lookups?.article_categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </Select>
+                      </Mini>
+                      <Mini label="Article">
+                        <Select value={r.article_type_id} onChange={(e) => update(r.key, { article_type_id: e.target.value })} disabled={!r.category_id}>
+                          <option value="">—</option>
+                          {typesFor(r.category_id).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                        </Select>
+                      </Mini>
+                      <Mini label="Karat" required error={err('karat_id')}>
+                        <Select value={r.karat_id} onChange={(e) => update(r.key, { karat_id: e.target.value })} aria-invalid={!!err('karat_id')}>
+                          <option value="">Select…</option>
+                          {lookups?.karats.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+                        </Select>
+                      </Mini>
+                      <Mini label="Condition">
+                        <Select value={r.condition_id} onChange={(e) => update(r.key, { condition_id: e.target.value })}>
+                          <option value="">—</option>
+                          {lookups?.article_conditions.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </Select>
+                      </Mini>
+
+                      <Mini label="Qty">
+                        <Input type="number" min={1} value={r.quantity} onChange={(e) => update(r.key, { quantity: e.target.value })} />
+                      </Mini>
+                      <Mini label="Gross (g)" required>
+                        <Input type="number" min={0} step="0.001" inputMode="decimal" value={r.gross_weight} onChange={(e) => update(r.key, { gross_weight: e.target.value })} />
+                      </Mini>
+                      <Mini label="Net (g)" required error={err('net_weight') ?? (netOverGross ? 'More than gross weight.' : undefined)}>
+                        <Input type="number" min={0} step="0.001" inputMode="decimal" value={r.net_weight} onChange={(e) => update(r.key, { net_weight: e.target.value })} aria-invalid={!!err('net_weight') || netOverGross} />
+                      </Mini>
+                      <Mini
+                        label="Density"
+                        error={err('density_reading')}
+                        tip={
+                          <InfoTip label="Density meter reading">
+                            The reading shown on the density meter when this item is tested. Optional — it is saved on the ticket for the record and does not change the value.
+                          </InfoTip>
+                        }
+                      >
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.001"
+                          inputMode="decimal"
+                          placeholder="Optional"
+                          aria-label="Density meter reading"
+                          value={r.density_reading}
+                          onChange={(e) => update(r.key, { density_reading: e.target.value })}
+                          aria-invalid={!!err('density_reading')}
+                        />
+                      </Mini>
+                    </div>
+                  </Card>
                 )
               })}
-            </tbody>
-          </table>
-        </Card>
-        {quoteError && <p className="text-sm text-destructive">{quoteError}</p>}
-      </section>
+            </div>
+            {quoteError && <p className="text-sm text-destructive">{quoteError}</p>}
+          </Step>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
-        <section className="space-y-2">
-          <h2 className="text-sm font-semibold">3. Loan</h2>
-          <Card className="grid gap-4 p-4 sm:grid-cols-2">
-            <Field label={opening ? 'Outstanding capital (Rs.)' : 'Loan amount (Rs.)'} required error={errors.amount || errors.principal || (overValue ? 'More than the article value.' : undefined)}>
-              <Input type="number" min={0} step="1" value={amount} onChange={(e) => setAmount(e.target.value)} aria-invalid={!!overValue} className="text-lg font-semibold" />
-            </Field>
-            <Field label="Term (months)" required error={errors.months} hint={!opening && quote && amount ? `Up to ${quote.max_term} month(s) for this loan` : undefined}>
-              <Select value={months} onChange={(e) => setMonths(e.target.value)}>
-                <option value="">Select…</option>
-                {monthOptions.map((m) => <option key={m} value={m}>{m}</option>)}
-              </Select>
-            </Field>
-            {opening && (
-              <>
-                <Field label="Original pawn date" required error={errors.pawn_date}>
-                  <Input type="date" value={pawnDate} onChange={(e) => setPawnDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
-                </Field>
-                <Field label="Old receipt number" required error={errors.legacy_receipt_no}>
-                  <Input value={legacyNo} onChange={(e) => setLegacyNo(e.target.value)} />
-                </Field>
-              </>
-            )}
-            <Field label="Remarks" className="sm:col-span-2" error={errors.remarks}>
-              <Textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} className="min-h-14" />
-            </Field>
-          </Card>
-          <div className="flex justify-end">
-            <Button variant="accent" size="md" disabled={!canSubmit || !!overValue} loading={saving} onClick={submit}>
-              {opening ? 'Save opening ticket' : 'Save pawn & print'}
-            </Button>
-          </div>
-        </section>
+          <Step n={3} title="Loan" done={loanDone}>
+            <Card className="space-y-5 p-5">
+              <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+                {/* Amount */}
+                <div className="space-y-1.5">
+                  <label htmlFor="loan-amount" className="text-sm font-medium">
+                    {opening ? 'Outstanding capital' : 'Loan amount'} <span className="text-destructive">*</span>
+                  </label>
+                  <div className={cn('flex h-14 items-center rounded-xl border bg-popover/80 px-4 transition focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/15', overValue && 'border-destructive')}>
+                    <span className="mr-2 text-sm text-muted-foreground">Rs.</span>
+                    <input
+                      id="loan-amount"
+                      type="number"
+                      min={0}
+                      step="1"
+                      inputMode="numeric"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      aria-invalid={!!overValue}
+                      placeholder="0"
+                      className="w-full min-w-0 bg-transparent text-2xl font-light tabular-nums outline-none"
+                    />
+                  </div>
+                  {errors.amount || errors.principal || overValue ? (
+                    <p className="text-xs text-destructive">{errors.amount || errors.principal || 'More than the article value.'}</p>
+                  ) : quote ? (
+                    <button type="button" onClick={() => setAmount(String(Math.floor(Number(quote.assessed_value))))} className="text-xs font-medium text-primary hover:underline">
+                      Use maximum · {formatMoney(quote.assessed_value)}
+                    </button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Add an article to see how much can be lent.</p>
+                  )}
+                </div>
 
-        <aside className="space-y-2">
-          <h2 className="text-sm font-semibold">Valuation {quoting && <Spinner className="ml-1 inline size-3.5" />}</h2>
-          <Card className="space-y-3 p-4">
-            {!quote ? (
-              <p className="text-sm text-muted-foreground">Enter at least one complete article to see its value.</p>
-            ) : (
-              <>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-sm text-muted-foreground">Article value (max loan)</span>
-                  <span className="text-xl font-semibold tabular-nums">{formatMoney(quote.assessed_value)}</span>
-                </div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Market value</span><span className="tabular-nums">{formatMoney(quote.market_value)}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Net weight</span><span>{Number(quote.net_weight).toFixed(3)} g</span></div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Scheme</span>
-                  <span><Badge tone="primary">{quote.scheme.code}</Badge> {Number(quote.monthly_rate)}% / month</span>
-                </div>
-                {!opening && (
-                  <div>
-                    <p className="mb-1 text-xs font-medium text-muted-foreground">Maximum loan by term</p>
-                    <div className="grid grid-cols-3 gap-1 text-xs">
+                {/* Term */}
+                <div className="space-y-1.5">
+                  <span className="text-sm font-medium">
+                    Term (months) <span className="text-destructive">*</span>
+                  </span>
+                  {!opening && quote ? (
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(5.25rem,1fr))] gap-2">
                       {Object.entries(quote.term_capacities).map(([m, cap]) => {
                         const ok = !amount || Number(cap) >= Number(amount)
+                        const active = months === m
                         return (
                           <button
                             key={m}
                             type="button"
                             disabled={!ok}
                             onClick={() => setMonths(m)}
+                            title={ok ? `Up to ${formatMoney(cap)} for ${m} month(s)` : 'Loan amount is above the limit for this term'}
                             className={cn(
-                              'rounded border px-1.5 py-1 text-left tabular-nums',
-                              ok ? 'hover:bg-secondary' : 'opacity-40',
-                              months === m && 'border-primary bg-primary/10',
+                              'rounded-xl border px-2.5 py-2 text-left transition-[border-color]',
+                              active ? 'border-primary bg-primary text-primary-foreground shadow-[0_6px_16px_-8px_var(--primary)]' : ok ? 'bg-popover/60 hover:border-ring' : 'cursor-not-allowed opacity-35',
                             )}
                           >
-                            <span className="font-medium">{m} mo</span>
-                            <span className="block">{Number(cap).toLocaleString()}</span>
+                            <span className="block text-sm font-medium">{m} mo</span>
+                            <span className={cn('block text-[11px] tabular-nums', active ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+                              ≤ {Number(cap).toLocaleString()}
+                            </span>
                           </button>
                         )
                       })}
                     </div>
+                  ) : (
+                    <Select value={months} onChange={(e) => setMonths(e.target.value)} disabled={!opening && !quote} className="h-14 rounded-xl">
+                      <option value="">{!opening && !quote ? 'Add an article first' : 'Select…'}</option>
+                      {monthOptions.map((m) => <option key={m} value={m}>{m} month{m > 1 ? 's' : ''}</option>)}
+                    </Select>
+                  )}
+                  {errors.months ? (
+                    <p className="text-xs text-destructive">{errors.months}</p>
+                  ) : (
+                    !opening && quote && amount && <p className="text-xs text-muted-foreground">Up to {quote.max_term} month(s) for this loan</p>
+                  )}
+                </div>
+              </div>
+
+              {opening && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Mini label="Original pawn date" required error={errors.pawn_date}>
+                    <Input type="date" value={pawnDate} onChange={(e) => setPawnDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} />
+                  </Mini>
+                  <Mini label="Old receipt number" required error={errors.legacy_receipt_no}>
+                    <Input value={legacyNo} onChange={(e) => setLegacyNo(e.target.value)} />
+                  </Mini>
+                </div>
+              )}
+
+              <Mini label="Remarks" error={errors.remarks}>
+                <Textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} className="min-h-16" placeholder="Optional note printed on the ticket record" />
+              </Mini>
+            </Card>
+          </Step>
+        </div>
+
+        {/* ---------------------------------------------------------------- summary */}
+        <aside className="lg:sticky lg:top-20">
+          <Card className="overflow-hidden">
+            <div className="border-b border-[var(--glass-edge)] p-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Article value</span>
+                {quoting && <Spinner className="size-3.5" />}
+              </div>
+              {quote ? (
+                <>
+                  <p className="mt-1 text-3xl font-light tracking-tight tabular-nums">{formatMoney(quote.assessed_value)}</p>
+                  <p className="text-xs text-muted-foreground">Maximum loan</p>
+                </>
+              ) : (
+                <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-secondary">
+                    <Gem className="size-4" />
+                  </span>
+                  Complete an article to see its value.
+                </div>
+              )}
+            </div>
+
+            {quote && (
+              <div className="space-y-2.5 border-b border-[var(--glass-edge)] p-5">
+                <SummaryRow label="Market value">{formatMoney(quote.market_value)}</SummaryRow>
+                <SummaryRow label="Net weight">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Scale className="size-3.5 text-muted-foreground" />
+                    {Number(quote.net_weight).toFixed(3)} g
+                  </span>
+                </SummaryRow>
+                <SummaryRow label="Scheme">
+                  <Badge tone="primary">{quote.scheme.code}</Badge> <span className="ml-1">{Number(quote.monthly_rate)}% / month</span>
+                </SummaryRow>
+              </div>
+            )}
+
+            <div className="space-y-4 p-5">
+              <div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm text-muted-foreground">{opening ? 'Capital' : 'Loan'}</span>
+                  <span className={cn('text-xl font-medium tabular-nums', overValue && 'text-destructive')}>{Number(amount) > 0 ? formatMoney(amount) : '—'}</span>
+                </div>
+                {Number(months) > 0 && <p className="text-right text-xs text-muted-foreground">for {months} month{Number(months) > 1 ? 's' : ''}</p>}
+                {quote && Number(amount) > 0 && (
+                  <div className="mt-3">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                      <div className={cn('h-full rounded-full transition-all', overValue ? 'bg-destructive' : ltv > 90 ? 'bg-warning' : 'bg-primary')} style={{ width: `${overValue ? 100 : ltv}%` }} />
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">{overValue ? 'Above the article value' : `${ltv.toFixed(0)}% of article value`}</p>
                   </div>
                 )}
-              </>
-            )}
+              </div>
+
+              {!canSubmit && (
+                <ul className="space-y-1.5 text-xs">
+                  {checklist.map((c) => (
+                    <li key={c.label} className={cn('flex items-center gap-2', c.ok ? 'text-muted-foreground line-through decoration-muted-foreground/40' : 'text-foreground')}>
+                      {c.ok ? <Check className="size-3.5 text-primary" /> : <Circle className="size-3.5 text-muted-foreground" />}
+                      {c.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <Button variant="primary" className="h-12 w-full text-[15px]" disabled={!canSubmit || !!overValue} loading={saving} onClick={submit}>
+                {opening ? 'Save opening ticket' : 'Save pawn & print'}
+              </Button>
+            </div>
           </Card>
         </aside>
       </div>

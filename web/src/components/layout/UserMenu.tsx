@@ -2,6 +2,7 @@ import { Building2, ChevronDown, LogOut } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ThemeSegmented } from '@/components/theme/ThemeProvider'
+import { Picker } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthProvider'
 
 function initials(name: string) {
@@ -28,26 +29,21 @@ export function BranchSwitcher() {
   }
 
   return (
-    <label className="glass flex h-10 items-center gap-2 rounded-full px-4 text-xs font-medium">
-      <Building2 className="size-3.5" />
-      <span className="sr-only">Working branch</span>
-      <select
-        className="bg-transparent outline-none"
-        value={currentBranch.id}
-        onChange={async (e) => {
-          const id = Number(e.target.value)
+    <div className="glass flex h-10 items-center gap-1 rounded-full pl-4 text-xs font-medium">
+      <Building2 className="size-3.5 shrink-0" />
+      <Picker
+        aria-label="Working branch"
+        className="h-10 w-auto max-w-60 border-0 bg-transparent pr-3 pl-1 text-xs font-medium focus:ring-0"
+        value={String(currentBranch.id)}
+        options={user.branches.map((b) => ({ value: String(b.id), label: `${b.code} · ${b.name}` }))}
+        onChange={async (v) => {
+          const id = Number(v)
           await switchBranch(id)
           const b = user.branches.find((x) => x.id === id)
           toast.success(`Now working in ${b?.code} · ${b?.name}`)
         }}
-      >
-        {user.branches.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.code} · {b.name}
-          </option>
-        ))}
-      </select>
-    </label>
+      />
+    </div>
   )
 }
 

@@ -43,23 +43,45 @@ export function CustomerPicker({
   }
 
   if (value) {
+    const name = [value.title, value.full_name].filter(Boolean).join(' ')
+    const initials = value.full_name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join('')
     return (
       <Card className="flex flex-wrap items-center gap-4 p-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold">{[value.title, value.full_name].filter(Boolean).join(' ')}</p>
+        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary/15 text-sm font-semibold text-primary">{initials}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium">{name}</p>
             <Badge tone={value.status === 'active' ? 'success' : 'danger'}>{value.status}</Badge>
+            <span className="text-xs text-muted-foreground">{value.code}</span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {value.code} · NIC {value.nic} · {value.phone1} · {[value.address_line1, value.city].filter(Boolean).join(', ')}
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">
+            NIC {value.nic} · {value.phone1}
+            {(value.address_line1 || value.city) && ` · ${[value.address_line1, value.city].filter(Boolean).join(', ')}`}
           </p>
-          {value.exposure && (
-            <p className="text-xs text-muted-foreground">
-              {value.exposure.active_tickets} active ticket(s), {formatMoney(value.exposure.outstanding_principal)} outstanding
-              {value.pawn_amount_limit && ` · limit ${formatMoney(value.pawn_amount_limit)}`}
-            </p>
-          )}
         </div>
+        {value.exposure && (
+          <div className="flex w-full flex-wrap gap-x-6 gap-y-2 text-xs whitespace-nowrap sm:w-auto sm:text-right">
+            <div>
+              <p className="text-muted-foreground">Active tickets</p>
+              <p className="text-base font-medium tabular-nums">{value.exposure.active_tickets}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Outstanding</p>
+              <p className="text-base font-medium tabular-nums">{formatMoney(value.exposure.outstanding_principal)}</p>
+            </div>
+            {value.pawn_amount_limit && (
+              <div>
+                <p className="text-muted-foreground">Limit</p>
+                <p className="text-base font-medium tabular-nums">{formatMoney(value.pawn_amount_limit)}</p>
+              </div>
+            )}
+          </div>
+        )}
         <Button variant="ghost" size="sm" onClick={() => onChange(null)}><X className="size-4" /> Change</Button>
       </Card>
     )
@@ -67,16 +89,21 @@ export function CustomerPicker({
 
   return (
     <Card className="p-4">
-      <div className="flex flex-wrap gap-2">
-        <Input
-          value={nic}
-          onChange={(e) => setNic(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), find())}
-          placeholder="Customer NIC (e.g. 901234567V)"
-          className="max-w-xs uppercase"
-          autoFocus
-        />
-        <Button onClick={find} loading={busy} variant="secondary"><Search className="size-4" /> Find</Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative w-full max-w-sm">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={nic}
+            onChange={(e) => setNic(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), find())}
+            placeholder="Customer NIC (e.g. 901234567V)"
+            aria-label="Customer NIC"
+            className="pl-9 uppercase placeholder:normal-case"
+            autoFocus
+          />
+        </div>
+        <Button onClick={find} loading={busy} variant="primary">Find</Button>
+        <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
         <Button onClick={() => setCreating(true)} variant="ghost"><UserPlus className="size-4" /> New customer</Button>
         {busy && <Spinner />}
       </div>
