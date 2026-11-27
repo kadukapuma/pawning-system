@@ -1,6 +1,7 @@
 import { Building2, ChevronDown, LogOut } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { ThemeSegmented } from '@/components/theme/ThemeProvider'
 import { useAuth } from '@/features/auth/AuthProvider'
 
 function initials(name: string) {
@@ -50,8 +51,10 @@ export function BranchSwitcher() {
   )
 }
 
-export function UserMenu() {
+/** Signed-in user card. `placement="sidebar"` fills the sidebar width and opens its menu upward. */
+export function UserMenu({ placement = 'header' }: { placement?: 'header' | 'sidebar' }) {
   const { user, logout } = useAuth()
+  const inSidebar = placement === 'sidebar'
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -70,24 +73,38 @@ export function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="glass flex h-10 items-center gap-2 rounded-full py-1 pr-3 pl-1 transition hover:bg-popover"
+        className={
+          inSidebar
+            ? 'flex w-full items-center gap-2.5 rounded-xl border border-[var(--glass-edge)] bg-popover/70 p-2 text-left transition hover:bg-popover'
+            : 'glass flex h-10 items-center gap-2 rounded-full py-1 pr-3 pl-1 transition hover:bg-popover'
+        }
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
           {initials(user.name)}
         </span>
-        <span className="hidden text-left sm:block">
-          <span className="block text-sm leading-tight font-medium">{user.name}</span>
-          <span className="block text-xs leading-tight text-muted-foreground">{roleLabel(user.roles[0] ?? '')}</span>
+        <span className={inSidebar ? 'min-w-0 flex-1 text-left' : 'hidden text-left sm:block'}>
+          <span className="block truncate text-sm leading-tight font-medium">{user.name}</span>
+          <span className="block truncate text-xs leading-tight text-muted-foreground">{roleLabel(user.roles[0] ?? '')}</span>
         </span>
-        <ChevronDown className="size-4 text-muted-foreground" />
+        <ChevronDown className={inSidebar ? 'size-4 shrink-0 rotate-180 text-muted-foreground' : 'size-4 text-muted-foreground'} />
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 mt-2 w-56 rounded-2xl border border-[var(--glass-edge)] bg-popover p-1.5 shadow-xl">
+        <div
+          role="menu"
+          className={
+            inSidebar
+              ? 'absolute right-0 bottom-full left-0 z-50 mb-2 rounded-2xl border border-[var(--glass-edge)] bg-popover p-1.5 shadow-xl'
+              : 'absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-[var(--glass-edge)] bg-popover p-1.5 shadow-xl'
+          }
+        >
           <div className="px-3 py-2 text-xs text-muted-foreground">
             Signed in as <span className="font-medium text-foreground">{user.username}</span>
+          </div>
+          <div className="px-1.5 pb-1.5">
+            <ThemeSegmented />
           </div>
           <button
             role="menuitem"

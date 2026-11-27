@@ -41,6 +41,15 @@
   --chart-4: #eda100;
   --chart-grid: #dcdedb;
   --chart-axis: #6b6e6a;
+  /* Backdrop (components/theme/Backdrop.tsx): near-flat warm grey panels, faint gold hairlines. */
+  --bg-facet-1: oklch(0.925 0.006 80);
+  --bg-facet-2: oklch(0.915 0.006 80);
+  --bg-facet-3: oklch(0.905 0.006 80);
+  --bg-facet-4: oklch(0.895 0.007 80);
+  --bg-line: oklch(0.7 0.08 80);
+  --bg-line-opacity: 0.4;
+  --bg-wash: oklch(0.91 0.006 80);
+  --bg-wash-opacity: 0.85;
 }
 
 .dark {
@@ -73,6 +82,15 @@
   --chart-4: #c98500;
   --chart-grid: #333632;
   --chart-axis: #b5b8b3;
+  /* Backdrop: near-flat charcoal panels, faint gold hairlines. */
+  --bg-facet-1: oklch(0.2 0.003 80);
+  --bg-facet-2: oklch(0.19 0.003 80);
+  --bg-facet-3: oklch(0.18 0.003 80);
+  --bg-facet-4: oklch(0.165 0.003 80);
+  --bg-line: oklch(0.72 0.08 80);
+  --bg-line-opacity: 0.35;
+  --bg-wash: oklch(0.18 0.003 80);
+  --bg-wash-opacity: 0.85;
 }
 
 @theme inline {
@@ -126,13 +144,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "tnum" 1; /* tabular numbers for money columns */
-    background-image:
-      radial-gradient(70rem 40rem at 50% -15%, oklch(1 0 0 / 0.75), transparent 70%),
-      radial-gradient(40rem 30rem at 100% 110%, oklch(0.88 0.03 158 / 0.45), transparent 70%);
-    background-attachment: fixed;
-  }
-  .dark body {
-    background-image: none;
   }
   @media print {
     body {

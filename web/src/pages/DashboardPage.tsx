@@ -18,6 +18,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useNavLayout } from '@/components/layout/navLayout'
+import { BranchSwitcher } from '@/components/layout/UserMenu'
 import { Spinner, Table, Td, Th } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthProvider'
 import type { PawnTicket } from '@/features/pawning/types'
@@ -83,7 +84,8 @@ export function DashboardPage() {
    */
   const L = sidebar
     ? {
-        root: '2xl:h-[calc(100vh-5.5rem)] 2xl:min-h-[40rem]',
+        // No top bar on the dashboard here, so the page gets the full height minus the padding.
+        root: 'lg:pt-3 2xl:h-[calc(100vh-1.5rem)] 2xl:min-h-[40rem]',
         grid: 'xl:grid-cols-[17rem_minmax(0,1fr)] 2xl:grid-cols-[17rem_minmax(0,1fr)_22rem]',
         left: 'lg:grid-cols-3 xl:grid-cols-1 2xl:overflow-y-auto',
         right: 'xl:col-span-2 2xl:col-span-1',
@@ -96,8 +98,28 @@ export function DashboardPage() {
       }
 
   return (
-    <div className={cn('mx-auto flex max-w-[1680px] flex-col gap-4', L.root)}>
-      {/* ---------- Headline strip: oversized KPIs + page tools */}
+    <div className={cn('relative isolate mx-auto flex max-w-[1680px] flex-col gap-4', L.root)}>
+      {/* ---------- Page tools */}
+      <div className="flex flex-wrap items-center justify-end gap-2 px-1 pt-1">
+        <BranchSwitcher />
+        {can('reports.all_branches') && (
+          <label className="glass flex h-10 cursor-pointer items-center gap-2 rounded-full px-3.5 text-xs font-medium" title="Show figures for all branches">
+            <input type="checkbox" className="size-3.5 accent-[var(--primary)]" checked={all} onChange={(e) => setAll(e.target.checked)} />
+            All branches
+          </label>
+        )}
+        {can('pawn.create') && (
+          <button
+            type="button"
+            onClick={() => navigate('/pawning/new')}
+            className="flex h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground shadow-[0_8px_20px_-8px_var(--primary)] transition hover:opacity-90"
+          >
+            <Plus className="size-4" /> New pawn
+          </button>
+        )}
+      </div>
+
+      {/* ---------- Headline strip: oversized KPIs */}
       <header className="flex flex-wrap items-center gap-x-8 gap-y-4 px-1">
         <div className="grid w-full flex-1 grid-cols-2 gap-x-8 gap-y-3 md:grid-cols-4 xl:w-auto">
           <p className="col-span-full -mb-1 text-[11px] text-muted-foreground">
@@ -114,16 +136,6 @@ export function DashboardPage() {
           ) : (
             <span className="col-span-4 h-14" />
           )}
-        </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          {can('reports.all_branches') && (
-            <label className="glass flex h-10 cursor-pointer items-center gap-2 rounded-full px-3.5 text-xs font-medium" title="Show figures for all branches">
-              <input type="checkbox" className="size-3.5 accent-[var(--primary)]" checked={all} onChange={(e) => setAll(e.target.checked)} />
-              All branches
-            </label>
-          )}
-          {can('pawn.create') && <RoundIcon icon={Plus} label="New pawn" onClick={() => navigate('/pawning/new')} />}
         </div>
       </header>
 
@@ -172,14 +184,6 @@ function Kpi({ label, value, unit, prefix, warn }: { label: string; value: strin
         {unit && <span className="truncate text-base font-light text-muted-foreground">{unit}</span>}
       </p>
     </div>
-  )
-}
-
-function RoundIcon({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className="glass grid size-10 place-items-center rounded-full transition hover:bg-popover">
-      <Icon className="size-4" />
-    </button>
   )
 }
 

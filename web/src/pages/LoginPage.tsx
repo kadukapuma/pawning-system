@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { Navigate, useLocation } from 'react-router-dom'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/AuthProvider'
+import { ThemeToggle } from '@/components/theme/ThemeProvider'
 import { errorMessage } from '@/lib/api'
 
 const schema = z.object({
@@ -37,7 +38,8 @@ export function LoginPage() {
     'w-full rounded-xl border bg-popover/80 px-3 py-2.5 outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/15 aria-[invalid=true]:border-destructive'
 
   return (
-    <div className="grid min-h-screen place-items-center p-4">
+    <div className="relative grid min-h-screen place-items-center p-4">
+      <ThemeToggle className="glass absolute top-4 right-4" />
       <form noValidate onSubmit={onSubmit} className="glass w-full max-w-sm space-y-4 rounded-3xl p-8">
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_var(--primary)]">

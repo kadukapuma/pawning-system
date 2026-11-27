@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { RequireAuth } from '@/features/auth/RequireAuth'
+import { ThemeToggle } from '@/components/theme/ThemeProvider'
 import { cn } from '@/lib/utils'
 import { MobileNav, ModuleDock } from './Dock'
 import { NavLayoutContext, readSidebarPref, writeSidebarPref } from './navLayout'
@@ -104,12 +105,13 @@ function Shell() {
           <aside className="glass fixed inset-y-3 left-3 z-40 hidden w-64 flex-col rounded-2xl px-3 py-4 lg:flex">
             <div className="mb-5 flex items-center gap-2.5 px-2">
               <Brand />
+              <ThemeToggle className="ml-auto size-8 text-sidebar-muted hover:bg-secondary hover:text-sidebar-foreground" />
               <button
                 type="button"
                 onClick={nav.toggleSidebar}
                 aria-label="Hide sidebar"
                 title="Hide sidebar"
-                className="ml-auto rounded-full p-1.5 text-sidebar-muted transition hover:bg-secondary hover:text-sidebar-foreground"
+                className="rounded-full p-1.5 text-sidebar-muted transition hover:bg-secondary hover:text-sidebar-foreground"
               >
                 <PanelLeftClose className="size-4" />
               </button>
@@ -119,19 +121,29 @@ function Shell() {
                 <SidebarGroup key={g.label} group={g} />
               ))}
             </nav>
+            <div className="mt-3 border-t border-[var(--glass-edge)] pt-3">
+              <UserMenu placement="sidebar" />
+            </div>
           </aside>
         )}
 
-        <div className={cn('flex min-w-0 flex-1 flex-col', sidebar ? 'lg:pl-[17.5rem]' : 'lg:pl-[4.75rem]')}>
-          <header className="sticky top-0 z-20 flex h-16 items-center gap-3 px-4 md:px-6">
+        <div className={cn('flex min-w-0 flex-1 flex-col overflow-x-clip', sidebar ?'lg:pl-[17.5rem]' : 'lg:pl-[4.75rem]')}>
+          {/* On the dashboard with the sidebar open the bar would be empty (branch switcher and
+              user card live elsewhere), so it is dropped and the greeting sits at the top. */}
+          <header className={cn('sticky top-0 z-20 flex h-16 items-center gap-3 px-4 md:px-6', pathname === '/' && sidebar && 'lg:hidden')}>
             {/* Brand shows here whenever the sidebar isn't (always on mobile). */}
             <div className={cn('flex items-center gap-2.5', sidebar && 'lg:hidden')}>
               <Brand />
             </div>
-            <span className="hidden sm:block">
-              <BranchSwitcher />
-            </span>
-            <div className="ml-auto">
+            {/* The dashboard shows the branch switcher in its own toolbar, next to "All branches". */}
+            {pathname !== '/' && (
+              <span className="hidden sm:block">
+                <BranchSwitcher />
+              </span>
+            )}
+            {/* With the sidebar open (lg+) the user card lives at the bottom of the sidebar. */}
+            <div className={cn('ml-auto flex items-center gap-2', sidebar && 'lg:hidden')}>
+              <ThemeToggle className="glass" />
               <UserMenu />
             </div>
           </header>
